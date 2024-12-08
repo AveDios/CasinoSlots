@@ -10,5 +10,4 @@ public interface ISlots {
     void setSlotSize(int value);
 
     void game();
-
 }
