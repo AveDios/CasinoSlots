@@ -28,9 +28,12 @@ public class SevenSlots implements ISlots {
 
 
 
+    @Override
     public void setSlotSize(int value) {
         slotSize[0] = value;
     }
+
+    @Override
     public void game() {
         Scanner scanner = new Scanner(System.in);
         int size = slotSize[0];
