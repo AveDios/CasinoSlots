@@ -11,3 +11,4 @@ public interface ISlots {
 
     void game();
 }
+//test
