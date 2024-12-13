@@ -109,37 +109,35 @@ public class SevenSlots implements ISlots {
     }
 
     private static String getRandomSymbol(Map<String, Integer> symbolCount) {
-        // Losowanie symbolu na podstawie wag, z uwzględnieniem liczby wystąpień symbolu
         double totalWeight = 0;
+        double[] cumulativeWeights = new double[symbolData.size()];
+        String[] symbolsArray = new String[symbolData.size()];
+
+        int i = 0;
         for (Map.Entry<String, double[]> entry : symbolData.entrySet()) {
             String symbol = entry.getKey();
-            int count = symbolCount.getOrDefault(symbol, 0);
+            double adjustedWeight = getAdjustedWeight(symbol, symbolCount.getOrDefault(symbol, 0));
 
-            // Redukcja wagi dla symboli, które pojawiły się 2 razy, aby zapobiec wygranym
-            double weight = entry.getValue()[1];
-            if (count == 2) {
-                weight /= 3; // Redukujemy wagę 10-krotnie, jeśli symbol pojawił się 2 razy
-            }
+            totalWeight += adjustedWeight;
+            cumulativeWeights[i] = totalWeight;
+            symbolsArray[i] = symbol;
 
-            totalWeight += weight;
+            i++;
         }
 
-        double randomValue = random.nextDouble(totalWeight);
-        for (Map.Entry<String, double[]> entry : symbolData.entrySet()) {
-            String symbol = entry.getKey();
-            double weight = entry.getValue()[1];
+        double randomValue = random.nextDouble() * totalWeight;
 
-            // Redukcja wagi dla symboli, które pojawiły się 2 razy
-            int count = symbolCount.getOrDefault(symbol, 0);
-            if (count == 2) {
-                weight /= 3;
+        for (int j = 0; j < symbolsArray.length; j++) {
+            if (randomValue < cumulativeWeights[j]) {
+                return symbolsArray[j];
             }
-
-            if (randomValue < weight) {
-                return symbol;
-            }
-            randomValue -= weight;
         }
-        return ""; // Domyślny zwrot, jeśli coś poszło nie tak
+        return ""; // Domyślny zwrot dla nieprzewidzianych sytuacji
+    }
+
+    private static double getAdjustedWeight(String symbol, int count) {
+        double baseWeight = symbolData.get(symbol)[1];
+        // Redukuj wagę, jeśli symbol pojawił się 2 razy
+        return count == 2 ? baseWeight / 3 : baseWeight;
     }
 }
