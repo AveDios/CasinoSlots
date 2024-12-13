@@ -1,31 +1,23 @@
-# ver-0.0.1-ISlots
-> This ver is a prototype **Seven Slots** game
+# ver-0.0.2-ChangeRandom
+> This version is a Fixed getRandomSymbol function: improved randomization logic
 
-# ISlots.java
+# SevenSlots.java
 
-The `ISlots` interface defines the basic functionalities of a slot game. It includes:
+The changes made simplify and optimize the process of selecting a random symbol based on its weight and reducing its weight if it has appeared more than two times. Here is a summary of what was changed:
+1. **Improved Code Structure:**
+    - The logic for adjusting a symbol's weight when it appears twice was moved to a separate method (`getAdjustedWeight`) to eliminate redundancy and improve code readability.
 
-- **Variable `slotSize`**: An array that stores the size of the slots.
-- **Map `symbolData`**: Stores the game symbols and their properties (value and weight).
+2. **Combined Loops:**
+    - Instead of iterating twice through the `symbolData` (`once for calculating total weight and once for selecting a symbol`), the recalculation of weights, cumulative weight updating, and symbol storage were combined in a single loop.
 
-## Methods
+3. **Introduction of Arrays:**
+    - Two arrays (`cumulativeWeights` and `symbolsArray`) were added to store cumulative weights and symbols in index order, streamlining the process of finding the symbol corresponding to a random value.
 
-- **`setSlotSize(int value)`**: Allows setting the size of the slots.
-- **`game()`**: Executes the game logic.
+4. **Random Selection Optimization:**
+    - The selection process now uses cumulative weights for comparison, which avoids recalculating weights at selection time, making the logic both faster and more concise.
 
-This interface should be implemented by classes that provide specific functionalities for slot-type games.
-
-# SevenSlots Class
-
-The `SevenSlots` class implements the `ISlots` interface and contains the core functionality of the slot game.
-
-## Key Features
-
-- **Total Winnings**: Tracks the total winnings of the player.
-- **Static Block**: Initializes the `symbolData` map with various symbols, their values, and weights.
-- **Slot Size**: Allows setting the size of the slot machine through the `setSlotSize(int value)` method.
-- **Game Logic**: The `game()` method handles the main game loop, allowing players to spin the slots, check for wins, and display results.
-- **Random Symbol Generation**: Uses weighted random selection to generate symbols for the slot machine, ensuring a fair distribution based on predefined weights.
+5. **Enhanced Readability:**
+    - The code is now easier to understand due to the separation of concerns (e.g., weight adjustment in its own method) and the use of clean iteration logic.
 
 ## Gameplay
 
