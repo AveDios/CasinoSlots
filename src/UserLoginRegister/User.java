@@ -9,11 +9,10 @@ public class User {
     private String username;
     private String hashedPassword;
 
-    User(int userID, String username, String password) {
-        if (isValidPassword(hashedPassword) && isValidPassword(username)) {
+    public User(String username, String password) {
+        if (!isValidPassword(password) && !isValidUserName(username)) {
             throw new IllegalArgumentException("Invalid Username or Password");
         }
-        this.userID = userID;
         this.username = username;
         this.hashedPassword = hashPassword(password);
     }
@@ -50,8 +49,24 @@ public class User {
         return username;
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public int getUserID() {
         return userID;
+    }
+
+    public void setUserID(int userID) {
+        this.userID = userID;
+    }
+
+    public String getHashedPassword() {
+        return hashedPassword;
+    }
+
+    public void setHashedPassword(String hashedPassword) {
+        this.hashedPassword = hashedPassword;
     }
 
     public boolean verifyPassword(String password) {
