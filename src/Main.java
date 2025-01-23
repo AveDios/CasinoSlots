@@ -1,10 +1,12 @@
 import JDBC.ConnectionInit;
+import JDBC.UserRegisterJDBC;
 import SevenSlotsGame.SevenSlots;
 import UserLoginRegister.LoginView;
 import UserLoginRegister.User;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 public class Main {
@@ -16,9 +18,16 @@ public class Main {
 //                new LoginView();
 //            }
 //        });
+        User testUser = new User("testUser2", "testPass");
 
         try {
             ConnectionInit.init();
+//            Connection connection = ConnectionInit.getConnection();
+//
+//            UserRegisterJDBC.insertUserData(connection, testUser.getUsername(), testUser.getHashedPassword(), testUser.getLevel(), testUser.getExperience(), testUser.getBalance());
+
+//            System.out.println(testUser.getHashedPassword());
+
 
             ConnectionInit.close();
         } catch (SQLException | IOException e) {

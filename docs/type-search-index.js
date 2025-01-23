@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"JDBC","l":"ConnectionInit"},{"p":"ISlots","l":"ISlots"},{"p":"UserLoginRegister","l":"LoginView"},{"p":"<Unnamed>","l":"Main"},{"p":"SevenSlotsGame","l":"SevenSlots"},{"p":"UserLoginRegister","l":"User"},{"p":"JDBC","l":"UserRegisterJDBC"}];updateSearchResults();

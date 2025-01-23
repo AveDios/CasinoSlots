@@ -1,5 +1,5 @@
 # ver-0.0.4
-> This version add opening connection with database and close that connection
+> This version adds opening connection with database and closing it, wile inserting user data in the process.
 
 # User.java
 
@@ -10,6 +10,8 @@ This Java class represents a user with a unique ID, username, and a securely has
 *   **Constructor User:** replace `(isValidPassword(hashedPassword) && isValidUserName(username))` to `(!isValidPassword(password) && !isValidUserName(username))`
 
 *   **Adding getters And setters:** adding getter and setter to all the variables for feature work
+
+
 
 # ConnectionInit.java
 
@@ -26,3 +28,6 @@ This class represents a simple database connection and close the connection usin
 *   **Modular Design:** Encapsulates database connection logic within a dedicated ConnectionInit class, promoting code reuse and maintainability.
 
 *   **Using mysql-connector-j-9.0.0:** To connect to the database we are using [Mysql-connector](https://dev.mysql.com/downloads/)
+
+
+

@@ -1,13 +1,20 @@
 package UserLoginRegister;
 
+import lombok.Data;
+import lombok.ToString;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.regex.Pattern;
 
+@Data @ToString
 public class User {
     private int userID;
     private String username;
     private String hashedPassword;
+    private int level;
+    private int experience;
+    private int balance = 1000;
 
     public User(String username, String password) {
         if (!isValidPassword(password) && !isValidUserName(username)) {
@@ -15,6 +22,33 @@ public class User {
         }
         this.username = username;
         this.hashedPassword = hashPassword(password);
+        this.level = 1;
+        this.experience = 0;
+    }
+
+    public void addExperience(int experienceToAdd) {
+        this.experience += experienceToAdd;
+        updateLevel();
+    }
+
+    public int getExperienceToNextLevel() {
+        int experienceNeeded = calculateExperienceToNextLevel(this.level) - this.experience;
+        return Math.max(0, experienceNeeded); // Zwracamy 0, jeśli użytkownik już przekroczył próg
+    }
+
+    private void updateLevel() {
+        int experienceToNextLevel = calculateExperienceToNextLevel(this.level);
+
+        while (this.experience >= experienceToNextLevel) {
+            this.level++;
+            this.experience -= experienceToNextLevel;
+            experienceToNextLevel = calculateExperienceToNextLevel(this.level);
+            System.out.println("Użytkownik " + this.username + " awansował na poziom " + this.level + "!");
+        }
+    }
+
+    public int calculateExperienceToNextLevel(int level) {
+        return 50 * level + 50;
     }
 
 
@@ -43,30 +77,6 @@ public class User {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public int getUserID() {
-        return userID;
-    }
-
-    public void setUserID(int userID) {
-        this.userID = userID;
-    }
-
-    public String getHashedPassword() {
-        return hashedPassword;
-    }
-
-    public void setHashedPassword(String hashedPassword) {
-        this.hashedPassword = hashedPassword;
     }
 
     public boolean verifyPassword(String password) {
