@@ -12,27 +12,21 @@ import java.sql.SQLException;
 public class Main {
     public static void main(String[] args) throws SQLException, IOException {
 
-//        SwingUtilities.invokeLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                new LoginView();
-//            }
-//        });
-        User testUser = new User("testUser2", "testPass");
-
-        try {
-            ConnectionInit.init();
+        SwingUtilities.invokeLater(LoginView::new);
+//
+//        try {
+//            ConnectionInit.init();
 //            Connection connection = ConnectionInit.getConnection();
 //
 //            UserRegisterJDBC.insertUserData(connection, testUser.getUsername(), testUser.getHashedPassword(), testUser.getLevel(), testUser.getExperience(), testUser.getBalance());
 
 //            System.out.println(testUser.getHashedPassword());
-
-
-            ConnectionInit.close();
-        } catch (SQLException | IOException e) {
-            e.printStackTrace();
-        }
+//
+//
+//            ConnectionInit.close();
+//        } catch (SQLException | IOException e) {
+//            e.printStackTrace();
+//        }
 
 
 

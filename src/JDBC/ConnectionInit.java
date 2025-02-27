@@ -11,6 +11,9 @@ import java.util.Properties;
 public class ConnectionInit {
     @Getter
     public static Connection connection;
+    public ConnectionInit() throws SQLException, IOException {
+        init();
+    }
 
     public static void init() throws SQLException, IOException {
         if (connection == null || connection.isClosed()) {
