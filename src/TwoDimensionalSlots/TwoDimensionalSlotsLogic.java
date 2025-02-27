@@ -116,7 +116,7 @@ public class TwoDimensionalSlotsLogic {
 
         ImageIcon firstSymbol = board[0][cols - 1];
         for (int i = 1; i < Math.min(rows,cols); i++) {
-            if(!board[i][cols - 1].equals(firstSymbol)){
+            if(!board[i][cols - 1 - i].equals(firstSymbol)){
                 return false;
             }
         }
