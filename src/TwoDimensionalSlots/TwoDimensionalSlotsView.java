@@ -1,5 +1,6 @@
 package TwoDimensionalSlots;
 
+import Assets.TwoDimensionalSlotsColors;
 import JDBC.ConnectionInit;
 import JDBC.DataGathering;
 
@@ -58,6 +59,18 @@ public class TwoDimensionalSlotsView extends JFrame {
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);
                 }
+
+//                spinButton.setEnabled(false);
+//
+//                Timer timer = new Timer(500, new ActionListener() {
+//                    @Override
+//                    public void actionPerformed(ActionEvent e) {
+//                        // Włącz przycisk po czasie
+//                        spinButton.setEnabled(true);
+//                    }
+//                });
+//                timer.setRepeats(false);
+//                timer.start();
             }
         });
 
@@ -81,17 +94,22 @@ public class TwoDimensionalSlotsView extends JFrame {
         twoDimensionalSlotsGameLogic.makeBoard();
         updateBoard();
 
-        List<int[]> winningFields = twoDimensionalSlotsGameLogic.getWinningFields();
-        if (twoDimensionalSlotsGameLogic.checkWin()){
-            highlightWinningFields(winningFields);
-            winnerInfo.setText("You win!");
+        // Pobieramy informacje o wygranej – metoda getWinInfo() już ustala priorytet (ROW ma najwyższy priorytet)
+        WinInfo winInfo = twoDimensionalSlotsGameLogic.getWinInfo();
+
+        if (winInfo != null) {
+            // Podświetlamy tylko pola odpowiadające typowi wygranej, który ma najwyższy priorytet
+            highlightWinningFields(winInfo);
+//            DataGathering.insertWinData(ConnectionInit.getConnection(),winInfo.getWinGameName(),winInfo.getvalue,true,winInfo.getWinType());
+            winnerInfo.setText("You win! (" + winInfo.getWinType() + ")");
             System.out.println("You win!");
-            System.out.println(twoDimensionalSlotsGameLogic.getWinInfo());
-//            DataGathering.insertWinData(ConnectionInit.getConnection(),"Two Diementional Slots Game", price, true);
+            System.out.println(winInfo);
+
+            // DataGathering.insertWinData(ConnectionInit.getConnection(), "Two Dimensional Slots Game", price, true);
         } else {
             winnerInfo.setText("You lost!");
             System.out.println("You lost!");
-//            DataGathering.insertWinData(ConnectionInit.getConnection(),"Two Diementional Slots Game", 0, false);
+            // DataGathering.insertWinData(ConnectionInit.getConnection(), "Two Dimensional Slots Game", 0, false);
         }
         Thread.yield();
     }
@@ -115,12 +133,33 @@ public class TwoDimensionalSlotsView extends JFrame {
         }
     }
 
-    private void highlightWinningFields(List<int[]> winningFields) {
-        for (int[] pos: winningFields){
+    private void highlightWinningFields(WinInfo winInfo) {
+        List<int[]> winningFields = winInfo.getWinningFields();
+
+        // Zmiana kolorów tła w zależności od wylosowanej wygranej
+        Color highlightColor = switch (winInfo.getWinType()) {
+            case ROW -> TwoDimensionalSlotsColors.ROW_COLOR_ORANGE;
+            case MAIN_DIAGONAL -> TwoDimensionalSlotsColors.MAIN_DIAGONAL_COLOR_YELLOW;
+            case ANTI_DIAGONAL -> TwoDimensionalSlotsColors.ANTI_DIAGONAL_COLOR_CYAN;
+            case MULTI_DIAGONAL -> TwoDimensionalSlotsColors.MULTI_DIAGONAL_COLOR_MAGENTA;
+            case REVERSE_MAIN_DIAGONAL -> TwoDimensionalSlotsColors.REVERSE_MAIN_DIAGONAL_COLOR_MAGENTA;
+            case REVERSE_ANTI_DIAGONAL -> TwoDimensionalSlotsColors.REVERSE_ANTI_DIAGONAL_COLOR_MAGENTA;
+            case REVERSE_MULTI_DIAGONAL -> TwoDimensionalSlotsColors.REVERSE_MULTI_DIAGONAL_COLOR_MAGENTA;
+        };
+
+        // Opcjonalnie: najpierw przywróć domyślne tło dla całej planszy
+        for (int i = 0; i < labels.length; i++) {
+            for (int j = 0; j < labels[i].length; j++) {
+                labels[i][j].setBackground(new Color(152,255,152));
+            }
+        }
+
+        // Podświetlenie tylko pól wygranej zgodnie z priorytetem (winInfo zawiera tylko te pola, które odpowiadają najwyższemu priorytetowi)
+        for (int[] pos : winningFields) {
             int row = pos[0];
             int col = pos[1];
             labels[row][col].setOpaque(true);
-            labels[row][col].setBackground(Color.ORANGE);
+            labels[row][col].setBackground(highlightColor);
         }
     }
 

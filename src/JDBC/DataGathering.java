@@ -1,5 +1,4 @@
 package JDBC;
-import TwoDimensionalSlots.TwoDimensionalSlotsLogic;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -8,13 +7,15 @@ import java.sql.SQLException;
 
 
 public class DataGathering {
-    public static void insertWinData(Connection connection, String game_name, double win, boolean isWin) throws SQLException {
+    public static void insertWinData(Connection connection, String game_name, double win, boolean isWin, String win_type) throws SQLException {
 
         // Zapytanie SQL do wstawienia danych
-        String insertGameSQL = "INSERT INTO wszystkieGry (id_user, game_name, win_value, isWin) VALUES (?, ?, ?, ?);";
-        String insertWinSQL = "INSERT INTO wygraneGry (id_user, game_name, win_value, isWin) VALUES (?, ?, ?, ?);";
+        String insertGameSQL = "INSERT INTO wszystkieGry (id_user, game_name, win_value, isWin, win_type) VALUES (?, ?, ?, ?, ?);";
+        String insertWinSQL = "INSERT INTO wygraneGry (id_user, game_name, win_value, isWin, win_type) VALUES (?, ?, ?, ?, ?);";
 
-        int idUser = 1;//placeholder
+        int idUser = 1;
+        int win_value = 1;
+
 
         if (isWin) {
 
@@ -26,11 +27,13 @@ public class DataGathering {
                 preparedStatementGame.setString(2, game_name);
                 preparedStatementGame.setDouble(3, win);
                 preparedStatementGame.setBoolean(4, isWin);
+                preparedStatementGame.setString(5, win_type);
 
                 preparedStatementWin.setInt(1, idUser);
                 preparedStatementWin.setString(2, game_name);
                 preparedStatementWin.setDouble(3, win);
                 preparedStatementWin.setBoolean(4, isWin);
+                preparedStatementGame.setString(5, win_type);
 
 
                 // Wykonanie zapytania
@@ -64,7 +67,6 @@ public class DataGathering {
                 e.printStackTrace();
             }
         }
-
 
 
 

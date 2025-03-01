@@ -19,10 +19,13 @@ public class TwoDimensionalSlotsLogic {
     }
 
     private void loadSymbols() {
-        symbols = new ImageIcon[3];
-        symbols[0] = new ImageIcon("src/symbols/cherry.png");
-        symbols[1] = new ImageIcon("src/symbols/lemon.png");
-        symbols[2] = new ImageIcon("src/symbols/orange.png");
+        symbols = new ImageIcon[2];
+        String cherry = "src/symbols/cherry.png";
+        String lemon = "src/symbols/lemon.png";
+        String orange = "src/symbols/orange.png";
+        symbols[0] = new ImageIcon(cherry);
+        symbols[1] = new ImageIcon(lemon);
+//        symbols[2] = new ImageIcon(orange);
     }
 
     public void makeBoard() {
@@ -34,50 +37,108 @@ public class TwoDimensionalSlotsLogic {
         }
     }
 
-    public boolean checkWin() {
-        for (int i = 0; i < board.length; i++) {
-            if(checkRowWin(board[i])){
-                return true;
-            }
-        }
-
-        return checkDiagonalWin();
-    }
+//    public boolean checkWin() {
+//        for (int i = 0; i < board.length; i++) {
+//            if(checkRowWin(board[i])){
+//                return true;
+//            }
+//        }
+//
+//        return checkDiagonalWin();
+//    }
 
     public WinInfo getWinInfo() {
         // Sprawdzenie wygranej poziomej (row win)
+        List<int[]> fields = new ArrayList<>();
         for (int i = 0; i < board.length; i++) {
             if (checkRowWin(board[i])) {
-                List<int[]> fields = new ArrayList<>();
+//                List<int[]> fields = new ArrayList<>();
                 for (int j = 0; j < board[i].length; j++) {
                     fields.add(new int[]{i, j});
                 }
-                return new WinInfo(WinInfo.WinType.ROW, board[i][0], fields);
+                return new WinInfo(WinInfo.WinGameName.TWO_DIMENSIONAL_SLOTS, WinInfo.WinType.ROW, board[i][0], fields);
             }
         }
 
-        // Sprawdzenie wygranej po przekątnej głównej (main diagonal win)
-        if (checkMainDiagonalWin()) {
-            List<int[]> fields = new ArrayList<>();
-            int minLength = Math.min(board.length, board[0].length);
+        int rows = board.length;
+        int cols = board[0].length;
+        int minLength = Math.min(rows, cols);
+
+        // Sprawdzenie, czy obie przekątne są wygrywające
+        if (checkMainDiagonalWin() && checkAntiDiagonalWin()) {
+            // Dodaj pola głównej przekątnej w kolejności naturalnej
             for (int i = 0; i < minLength; i++) {
                 fields.add(new int[]{i, i});
             }
-            return new WinInfo(WinInfo.WinType.MAIN_DIAGONAL, board[0][0], fields);
+            // Dodaj pola przekątnej pobocznej w kolejności odwrotnej
+            for (int i = minLength - 1; i >= 0; i--) {
+                int[] coordinate = new int[]{i, cols - 1 - i};
+                boolean exists = false;
+                for (int[] field : fields) {
+                    if (field[0] == coordinate[0] && field[1] == coordinate[1]) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    fields.add(coordinate);
+                }
+            }
+            // Ustalamy symbol wygrywający – można tu dodać dodatkową logikę, jeśli potrzebna
+            ImageIcon winningSymbol = board[0][0];
+            return new WinInfo(WinInfo.WinGameName.TWO_DIMENSIONAL_SLOTS ,WinInfo.WinType.MULTI_DIAGONAL, winningSymbol, fields);
         }
 
-        // Sprawdzenie wygranej po przekątnej pobocznej (anti-diagonal win)
+        if (checkReverseMainDiagonalWin() && checkReverseAntiDiagonalWin()) {
+            for (int i = 0; i < minLength; i++) {
+                fields.add(new int[]{rows - 1 - i, cols - 1 - i}); // Odwrócona główna
+            }
+            for (int i = minLength - 1; i >= 0; i--) {
+                int[] coordinate = new int[]{rows - 1 - i, i};
+                boolean exists = false;
+                for (int[] field : fields) {
+                    if (field[0] == coordinate[0] && field[1] == coordinate[1]){
+                        exists = true;
+                        break;
+                    }// Odwrócona antyprzekątna
+                }
+                if (!exists) {
+                    fields.add(coordinate);
+                }
+            }
+            return new WinInfo(WinInfo.WinGameName.TWO_DIMENSIONAL_SLOTS, WinInfo.WinType.REVERSE_MULTI_DIAGONAL, board[rows - 1][cols - 1], fields);
+        }
+
+        // Sprawdzenie przekątnej głównej (main diagonal win)
+        if (checkMainDiagonalWin()) {
+            for (int i = 0; i < minLength; i++) {
+                fields.add(new int[]{i, i});
+            }
+            return new WinInfo(WinInfo.WinGameName.TWO_DIMENSIONAL_SLOTS, WinInfo.WinType.MAIN_DIAGONAL, board[0][0], fields);
+        }
+
+        // Sprawdzenie przekątnej pobocznej (anti-diagonal win)
         if (checkAntiDiagonalWin()) {
-            List<int[]> fields = new ArrayList<>();
-            int cols = board[0].length;
-            int minLength = Math.min(board.length, board[0].length);
             for (int i = 0; i < minLength; i++) {
                 fields.add(new int[]{i, cols - 1 - i});
             }
-            return new WinInfo(WinInfo.WinType.ANTI_DIAGONAL, board[0][cols - 1], fields);
+            return new WinInfo(WinInfo.WinGameName.TWO_DIMENSIONAL_SLOTS, WinInfo.WinType.ANTI_DIAGONAL, board[0][cols - 1], fields);
         }
 
-        // Brak wygranej
+        if (checkReverseMainDiagonalWin()) {
+            for (int i = 0; i < minLength; i++) {
+                fields.add(new int[]{rows - 1 - i, cols - 1 - i});
+            }
+            return new WinInfo(WinInfo.WinGameName.TWO_DIMENSIONAL_SLOTS, WinInfo.WinType.REVERSE_MAIN_DIAGONAL, board[0][0], fields);
+        }
+
+        if (checkReverseAntiDiagonalWin()) {
+            for (int i = 0; i < minLength; i++) {
+                fields.add(new int[]{rows - 1 - i, i});
+            }
+            return new WinInfo(WinInfo.WinGameName.TWO_DIMENSIONAL_SLOTS, WinInfo.WinType.REVERSE_ANTI_DIAGONAL, board[rows - 1][0], fields);
+        }
+
         return null;
     }
 
@@ -91,9 +152,9 @@ public class TwoDimensionalSlotsLogic {
         return true;
     }
 
-    boolean checkDiagonalWin() {
-        return checkMainDiagonalWin() || checkAntiDiagonalWin();
-    }
+//    boolean checkDiagonalWin() {
+//        return checkMainDiagonalWin() || checkAntiDiagonalWin();
+//    }
 
     boolean checkMainDiagonalWin() {
         int rows = board.length;
@@ -123,31 +184,59 @@ public class TwoDimensionalSlotsLogic {
         return true;
     }
 
-    public List<int[]> getWinningFields() {
-        List<int[]> winningFields = new ArrayList<>();
+    boolean checkReverseMainDiagonalWin() {
+        int rows = board.length;
+        int cols = board[0].length;
+        if (rows < 3 || cols < 3) return false;
 
-        // Check for horizontal wins
-        for (int i = 0; i < board.length; i++) {
-            if (checkRowWin(board[i])) {
-                for (int j = 0; j < board[i].length; j++) {
-                    winningFields.add(new int[]{i, j});
-                }
+        ImageIcon firstSymbol = board[rows - 1][cols - 1];
+        for (int i = 1; i < Math.min(rows,cols); i++) {
+            if(!board[rows - 1 - i][cols - 1 - i].equals(firstSymbol)){
+                return false;
             }
         }
-
-        // Check for diagonal wins
-        if (checkMainDiagonalWin()) {
-            for (int i = 0; i < Math.min(board.length, board[0].length); i++) {
-                winningFields.add(new int[]{i, i});
-            }
-        }
-
-        if (checkAntiDiagonalWin()) {
-            for (int i = 0; i < Math.min(board.length, board[0].length); i++) {
-                winningFields.add(new int[]{i, board[0].length - 1 - i});
-            }
-        }
-
-        return winningFields;
+        return true;
     }
+
+    boolean checkReverseAntiDiagonalWin() {
+        int rows = board.length;
+        int cols = board[0].length;
+        if (rows < 3 || cols < 3) return false;
+
+        ImageIcon firstSymbol = board[rows - 1][0];
+        for (int i = 1; i < Math.min(rows,cols); i++) {
+            if(!board[rows - 1 - i][i].equals(firstSymbol)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+//    public List<int[]> getWinningFields() {
+//        List<int[]> winningFields = new ArrayList<>();
+//
+//        // Check for horizontal wins
+//        for (int i = 0; i < board.length; i++) {
+//            if (checkRowWin(board[i])) {
+//                for (int j = 0; j < board[i].length; j++) {
+//                    winningFields.add(new int[]{i, j});
+//                }
+//            }
+//        }
+//
+//        // Check for diagonal wins
+//        if (checkMainDiagonalWin()) {
+//            for (int i = 0; i < Math.min(board.length, board[0].length); i++) {
+//                winningFields.add(new int[]{i, i});
+//            }
+//        }
+//
+//        if (checkAntiDiagonalWin()) {
+//            for (int i = 0; i < Math.min(board.length, board[0].length); i++) {
+//                winningFields.add(new int[]{i, board[0].length - 1 - i});
+//            }
+//        }
+//
+//        return winningFields;
+//    }
 }
