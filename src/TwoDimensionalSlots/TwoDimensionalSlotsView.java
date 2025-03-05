@@ -96,6 +96,7 @@ public class TwoDimensionalSlotsView extends JFrame {
 
         // Pobieramy informacje o wygranej – metoda getWinInfo() już ustala priorytet (ROW ma najwyższy priorytet)
         WinInfo winInfo = twoDimensionalSlotsGameLogic.getWinInfo();
+        double winValue = TwoDimensionalSlotsWinPriceLogic.getWinValue(winInfo);
 
         if (winInfo != null) {
             // Podświetlamy tylko pola odpowiadające typowi wygranej, który ma najwyższy priorytet
@@ -104,6 +105,7 @@ public class TwoDimensionalSlotsView extends JFrame {
             winnerInfo.setText("You win! (" + winInfo.getWinType() + ")");
             System.out.println("You win!");
             System.out.println(winInfo);
+            System.out.println(winValue);
 
             // DataGathering.insertWinData(ConnectionInit.getConnection(), "Two Dimensional Slots Game", price, true);
         } else {

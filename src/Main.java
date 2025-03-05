@@ -1,6 +1,8 @@
+import GameHub.GameHubView;
 import JDBC.ConnectionInit;
 import JDBC.UserRegisterJDBC;
 import SevenSlotsGame.SevenSlots;
+import TwoDimensionalSlots.TwoDimensionalSlotsView;
 import UserLoginRegister.LoginView;
 import UserLoginRegister.User;
 
@@ -12,7 +14,7 @@ import java.sql.SQLException;
 public class Main {
     public static void main(String[] args) throws SQLException, IOException {
 
-        SwingUtilities.invokeLater(LoginView::new);
+        SwingUtilities.invokeLater(GameHubView::new);
 //
 //        try {
 //            ConnectionInit.init();

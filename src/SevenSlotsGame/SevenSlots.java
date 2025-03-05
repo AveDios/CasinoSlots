@@ -23,7 +23,7 @@ public class SevenSlots implements ISlots {
     }
     private static final Random random = new Random();
 
-//    private static final String[] symbols = { "🍒", "🍋", "🍊", "🍉", "🔔", "⭐", "💎", "🍀" };
+//    private static final String[] Assets.symbols = { "🍒", "🍋", "🍊", "🍉", "🔔", "⭐", "💎", "🍀" };
 //    private static final int[] winPrice = { 5, 10, 15, 20, 30, 50, 75, 100 };
 
 

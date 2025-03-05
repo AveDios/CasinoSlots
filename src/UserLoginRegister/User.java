@@ -1,6 +1,9 @@
 package UserLoginRegister;
 
+import Roulette.Bet;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.security.MessageDigest;
@@ -14,6 +17,7 @@ public class User {
     private String hashedPassword;
     private int level;
     private int experience;
+    @Getter
     private int balance = 1000;
 
     public User(String username, String password) {
@@ -81,5 +85,12 @@ public class User {
 
     public boolean verifyPassword(String password) {
         return this.hashedPassword.equals(hashPassword(password));
+    }
+
+
+
+    // Adds winnings to the player's balance
+    public void addWinnings(int amount) {
+        balance += amount;
     }
 }

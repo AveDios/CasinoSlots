@@ -20,12 +20,14 @@ public class TwoDimensionalSlotsLogic {
 
     private void loadSymbols() {
         symbols = new ImageIcon[2];
-        String cherry = "src/symbols/cherry.png";
-        String lemon = "src/symbols/lemon.png";
-        String orange = "src/symbols/orange.png";
+        String cherry = "src/Assets.symbols/cherry.png";
+        String lemon = "src/Assets.symbols/lemon.png";
+        String orange = "src/Assets.symbols/orange.png";
         symbols[0] = new ImageIcon(cherry);
+        symbols[0].setDescription("cherry");
         symbols[1] = new ImageIcon(lemon);
-//        symbols[2] = new ImageIcon(orange);
+        symbols[1].setDescription("lemon");
+//        Assets.symbols[2] = new ImageIcon(orange);
     }
 
     public void makeBoard() {
