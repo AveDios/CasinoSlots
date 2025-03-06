@@ -1,4 +1,7 @@
-package TwoDimensionalSlots;
+package Slots.TwoDimensionalSlots;
+
+import Slots.WinInfo.WinInfo;
+import Slots.WinInfo.WinType;
 
 import javax.swing.*;
 
@@ -27,7 +30,7 @@ public class TwoDimensionalSlotsWinPriceLogic {
         };
     }
 
-    private static double applyMultiplier(double baseValue, WinInfo.WinType winType) {
+    private static double applyMultiplier(double baseValue, WinType winType) {
         return switch (winType) {
             case ROW ->  baseValue;
             case MAIN_DIAGONAL, ANTI_DIAGONAL -> baseValue * 1.5;

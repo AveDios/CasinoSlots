@@ -10,7 +10,7 @@ public class RunProgram {
 //        Player User = new Player(1000);
         RouletteTable table = new RouletteTable();
 
-        User user = new User("kutas", "kutas");
+        User user = new User("fallus", "fallus");
 
         System.out.println("Witaj w ruletce! Twój balans: " + user.getBalance());
 

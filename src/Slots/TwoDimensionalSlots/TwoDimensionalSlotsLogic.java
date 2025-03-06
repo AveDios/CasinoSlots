@@ -1,5 +1,8 @@
-package TwoDimensionalSlots;
+package Slots.TwoDimensionalSlots;
 
+import Slots.WinInfo.WinGameName;
+import Slots.WinInfo.WinInfo;
+import Slots.WinInfo.WinType;
 import lombok.Getter;
 
 import javax.swing.*;
@@ -20,9 +23,9 @@ public class TwoDimensionalSlotsLogic {
 
     private void loadSymbols() {
         symbols = new ImageIcon[2];
-        String cherry = "src/Assets.symbols/cherry.png";
-        String lemon = "src/Assets.symbols/lemon.png";
-        String orange = "src/Assets.symbols/orange.png";
+        String cherry = "src/Assets/symbols/cherry.png";
+        String lemon = "src/Assets/symbols/lemon.png";
+        String orange = "src/Assets/symbols/orange.png";
         symbols[0] = new ImageIcon(cherry);
         symbols[0].setDescription("cherry");
         symbols[1] = new ImageIcon(lemon);
@@ -39,16 +42,6 @@ public class TwoDimensionalSlotsLogic {
         }
     }
 
-//    public boolean checkWin() {
-//        for (int i = 0; i < board.length; i++) {
-//            if(checkRowWin(board[i])){
-//                return true;
-//            }
-//        }
-//
-//        return checkDiagonalWin();
-//    }
-
     public WinInfo getWinInfo() {
         // Sprawdzenie wygranej poziomej (row win)
         List<int[]> fields = new ArrayList<>();
@@ -58,7 +51,7 @@ public class TwoDimensionalSlotsLogic {
                 for (int j = 0; j < board[i].length; j++) {
                     fields.add(new int[]{i, j});
                 }
-                return new WinInfo(WinInfo.WinGameName.TWO_DIMENSIONAL_SLOTS, WinInfo.WinType.ROW, board[i][0], fields);
+                return new WinInfo(WinGameName.TWO_DIMENSIONAL_SLOTS, WinType.ROW, board[i][0], fields);
             }
         }
 
@@ -88,7 +81,7 @@ public class TwoDimensionalSlotsLogic {
             }
             // Ustalamy symbol wygrywający – można tu dodać dodatkową logikę, jeśli potrzebna
             ImageIcon winningSymbol = board[0][0];
-            return new WinInfo(WinInfo.WinGameName.TWO_DIMENSIONAL_SLOTS ,WinInfo.WinType.MULTI_DIAGONAL, winningSymbol, fields);
+            return new WinInfo(WinGameName.TWO_DIMENSIONAL_SLOTS ,WinType.MULTI_DIAGONAL, winningSymbol, fields);
         }
 
         if (checkReverseMainDiagonalWin() && checkReverseAntiDiagonalWin()) {
@@ -108,7 +101,7 @@ public class TwoDimensionalSlotsLogic {
                     fields.add(coordinate);
                 }
             }
-            return new WinInfo(WinInfo.WinGameName.TWO_DIMENSIONAL_SLOTS, WinInfo.WinType.REVERSE_MULTI_DIAGONAL, board[rows - 1][cols - 1], fields);
+            return new WinInfo(WinGameName.TWO_DIMENSIONAL_SLOTS, WinType.REVERSE_MULTI_DIAGONAL, board[rows - 1][cols - 1], fields);
         }
 
         // Sprawdzenie przekątnej głównej (main diagonal win)
@@ -116,7 +109,7 @@ public class TwoDimensionalSlotsLogic {
             for (int i = 0; i < minLength; i++) {
                 fields.add(new int[]{i, i});
             }
-            return new WinInfo(WinInfo.WinGameName.TWO_DIMENSIONAL_SLOTS, WinInfo.WinType.MAIN_DIAGONAL, board[0][0], fields);
+            return new WinInfo(WinGameName.TWO_DIMENSIONAL_SLOTS, WinType.MAIN_DIAGONAL, board[0][0], fields);
         }
 
         // Sprawdzenie przekątnej pobocznej (anti-diagonal win)
@@ -124,21 +117,21 @@ public class TwoDimensionalSlotsLogic {
             for (int i = 0; i < minLength; i++) {
                 fields.add(new int[]{i, cols - 1 - i});
             }
-            return new WinInfo(WinInfo.WinGameName.TWO_DIMENSIONAL_SLOTS, WinInfo.WinType.ANTI_DIAGONAL, board[0][cols - 1], fields);
+            return new WinInfo(WinGameName.TWO_DIMENSIONAL_SLOTS, WinType.ANTI_DIAGONAL, board[0][cols - 1], fields);
         }
 
         if (checkReverseMainDiagonalWin()) {
             for (int i = 0; i < minLength; i++) {
                 fields.add(new int[]{rows - 1 - i, cols - 1 - i});
             }
-            return new WinInfo(WinInfo.WinGameName.TWO_DIMENSIONAL_SLOTS, WinInfo.WinType.REVERSE_MAIN_DIAGONAL, board[0][0], fields);
+            return new WinInfo(WinGameName.TWO_DIMENSIONAL_SLOTS, WinType.REVERSE_MAIN_DIAGONAL, board[0][0], fields);
         }
 
         if (checkReverseAntiDiagonalWin()) {
             for (int i = 0; i < minLength; i++) {
                 fields.add(new int[]{rows - 1 - i, i});
             }
-            return new WinInfo(WinInfo.WinGameName.TWO_DIMENSIONAL_SLOTS, WinInfo.WinType.REVERSE_ANTI_DIAGONAL, board[rows - 1][0], fields);
+            return new WinInfo(WinGameName.TWO_DIMENSIONAL_SLOTS, WinType.REVERSE_ANTI_DIAGONAL, board[rows - 1][0], fields);
         }
 
         return null;
@@ -153,10 +146,6 @@ public class TwoDimensionalSlotsLogic {
         }
         return true;
     }
-
-//    boolean checkDiagonalWin() {
-//        return checkMainDiagonalWin() || checkAntiDiagonalWin();
-//    }
 
     boolean checkMainDiagonalWin() {
         int rows = board.length;
@@ -213,32 +202,4 @@ public class TwoDimensionalSlotsLogic {
         }
         return true;
     }
-
-//    public List<int[]> getWinningFields() {
-//        List<int[]> winningFields = new ArrayList<>();
-//
-//        // Check for horizontal wins
-//        for (int i = 0; i < board.length; i++) {
-//            if (checkRowWin(board[i])) {
-//                for (int j = 0; j < board[i].length; j++) {
-//                    winningFields.add(new int[]{i, j});
-//                }
-//            }
-//        }
-//
-//        // Check for diagonal wins
-//        if (checkMainDiagonalWin()) {
-//            for (int i = 0; i < Math.min(board.length, board[0].length); i++) {
-//                winningFields.add(new int[]{i, i});
-//            }
-//        }
-//
-//        if (checkAntiDiagonalWin()) {
-//            for (int i = 0; i < Math.min(board.length, board[0].length); i++) {
-//                winningFields.add(new int[]{i, board[0].length - 1 - i});
-//            }
-//        }
-//
-//        return winningFields;
-//    }
 }

@@ -1,8 +1,7 @@
-package TwoDimensionalSlots;
+package Slots.TwoDimensionalSlots;
 
 import Assets.TwoDimensionalSlotsColors;
-import JDBC.ConnectionInit;
-import JDBC.DataGathering;
+import Slots.WinInfo.WinInfo;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,23 +11,13 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
 public class TwoDimensionalSlotsView extends JFrame {
-
-    /**
-     * Ustawia zmienne pomocnicze do obsłygi gry
-     * @param twoDimensionalSlotsGameLogic odwołanie do klasy w której jest logika całej gry
-     * @param labels
-     **/
     private TwoDimensionalSlotsLogic twoDimensionalSlotsGameLogic;
     private JLabel[][] labels = new JLabel[3][5];
     private JButton spinButton;
     private JLabel winnerInfo;
 
-    /**
-     *
-     */
     public TwoDimensionalSlotsView() {
         twoDimensionalSlotsGameLogic = new TwoDimensionalSlotsLogic();
 
@@ -59,18 +48,6 @@ public class TwoDimensionalSlotsView extends JFrame {
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);
                 }
-
-//                spinButton.setEnabled(false);
-//
-//                Timer timer = new Timer(500, new ActionListener() {
-//                    @Override
-//                    public void actionPerformed(ActionEvent e) {
-//                        // Włącz przycisk po czasie
-//                        spinButton.setEnabled(true);
-//                    }
-//                });
-//                timer.setRepeats(false);
-//                timer.start();
             }
         });
 
@@ -105,6 +82,7 @@ public class TwoDimensionalSlotsView extends JFrame {
             winnerInfo.setText("You win! (" + winInfo.getWinType() + ")");
             System.out.println("You win!");
             System.out.println(winInfo);
+            JOptionPane.showMessageDialog(null, "You win! Your price is: " + winValue, "High Score", JOptionPane.INFORMATION_MESSAGE);
             System.out.println(winValue);
 
             // DataGathering.insertWinData(ConnectionInit.getConnection(), "Two Dimensional Slots Game", price, true);

@@ -1,0 +1,11 @@
+package Slots.WinInfo;
+
+public enum WinType {
+    ROW,
+    MAIN_DIAGONAL,
+    ANTI_DIAGONAL,
+    MULTI_DIAGONAL,
+    REVERSE_MAIN_DIAGONAL,
+    REVERSE_ANTI_DIAGONAL,
+    REVERSE_MULTI_DIAGONAL,
+}

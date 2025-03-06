@@ -1,6 +1,6 @@
 package UserLoginRegister;
 
-import TwoDimensionalSlots.TwoDimensionalSlotsView;
+import Slots.TwoDimensionalSlots.TwoDimensionalSlotsView;
 
 import javax.swing.*;
 import java.awt.*;

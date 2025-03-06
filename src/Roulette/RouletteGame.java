@@ -29,7 +29,7 @@ public class RouletteGame {
 
             case DOZEN:
                 int dozen = (Integer.parseInt(number) - 1) / 12 + 1;
-                return bet.getValue().equals(String.valueOf(dozen)); // Dozen 1, 2, or 3
+                return bet.getValue().equals(String.valueOf(dozen)); // A Dozen 1, 2, or 3
 
             default:
                 return false;
@@ -38,14 +38,11 @@ public class RouletteGame {
 
     // Calculates payout based on the bet type
     public static int calculatePayout(Bet bet) {
-        switch (bet.getType()) {
-            case NUMBER: return bet.getAmount() * 35;
-            case COLOR:
-            case EVEN_ODD:
-            case HIGH_LOW: return bet.getAmount() * 2;
-            case COLUMN:
-            case DOZEN: return bet.getAmount() * 3;
-            default: return 0;
-        }
+        return switch (bet.getType()) {
+            case NUMBER -> bet.getAmount() * 35;
+            case COLOR, EVEN_ODD, HIGH_LOW -> bet.getAmount() * 2;
+            case COLUMN, DOZEN -> bet.getAmount() * 3;
+            default -> 0;
+        };
     }
 }

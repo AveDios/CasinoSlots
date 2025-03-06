@@ -1,20 +1,15 @@
-import GameHub.GameHubView;
-import JDBC.ConnectionInit;
-import JDBC.UserRegisterJDBC;
-import SevenSlotsGame.SevenSlots;
-import TwoDimensionalSlots.TwoDimensionalSlotsView;
-import UserLoginRegister.LoginView;
-import UserLoginRegister.User;
+import Slots.SevenSlotsGame.SevenSlots;
+import Slots.SevenSlotsGame.SevenSlotsView;
+import Slots.TwoDimensionalSlots.TwoDimensionalSlotsView;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) throws SQLException, IOException {
 
-        SwingUtilities.invokeLater(GameHubView::new);
+        SwingUtilities.invokeLater(SevenSlotsView::new);
 //
 //        try {
 //            ConnectionInit.init();
