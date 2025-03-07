@@ -2,6 +2,7 @@ package Slots.SevenSlotsGame;
 
 import Slots.WinInfo.WinGameName;
 import Slots.WinInfo.WinInfo;
+import Slots.WinInfo.WinPossibilities;
 import Slots.WinInfo.WinType;
 import lombok.Getter;
 
@@ -38,20 +39,37 @@ public class SevenSlots {
     }
 
     public WinInfo getWinInfo() {
-        if (checkRowWin(board)) {
-            return new WinInfo(WinGameName.ONE_DIMENSIONAL_SLOTS, WinType.ROW, board[0]);
+        if (checkRowWin(board,5)) {
+            return new WinInfo(WinGameName.ONE_DIMENSIONAL_SLOTS, WinType.ROW, board[0], WinPossibilities.FIVE);
+        }
+        if (checkRowWin(board,4)) {
+            return new WinInfo(WinGameName.ONE_DIMENSIONAL_SLOTS, WinType.ROW, board[0], WinPossibilities.FOUR);
+        }
+        if (checkRowWin(board,3)) {
+            return new WinInfo(WinGameName.ONE_DIMENSIONAL_SLOTS, WinType.ROW, board[0], WinPossibilities.THREE);
         }
         return null;
     }
 
-    private boolean checkRowWin(ImageIcon[] row){
-        ImageIcon firstSymbol = row[0];
-        for (int i = 1; i < row.length; i++) {
-            if (!row[i].equals(firstSymbol)) {
-                return false;
-            }
+    private boolean checkRowWin(ImageIcon[] row, int winCondition) {
+        if (row.length < winCondition) {
+            return false; // Nie można wygrać, jeśli rząd jest krótszy niż warunek wygranej
         }
-        return true;
+
+        for (int i = 0; i <= row.length - winCondition; i++) {
+            ImageIcon firstSymbol = row[i];
+            if (firstSymbol == null) continue; // Pomijamy puste miejsca
+
+            boolean win = true;
+            for (int j = 1; j < winCondition; j++) {
+                if (!row[i + j].equals(firstSymbol)) {
+                    win = false;
+                    break;
+                }
+            }
+            if (win) return true; // Jeśli znaleźliśmy sekwencję, zwracamy true
+        }
+        return false;
     }
 
 

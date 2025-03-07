@@ -10,7 +10,7 @@ import java.util.Map;
 public class RouletteView extends JPanel {
     private static final Map<Integer, String> NUMBER_COLORS = new HashMap<>();
 
-    static {                                                                                                                                                                                                                                                                                                                // A ku ku, tu cie mam XDD   po co tak daleko patrztsz      A chuj cie to !!!!! co to znaczy, działa działa i w czym problem <33
+    static {
         int[] redNumbers = {1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36};
         for (int i = 1; i <= 36; i++) {
             NUMBER_COLORS.put(i, "BLACK");
@@ -29,27 +29,26 @@ public class RouletteView extends JPanel {
         JFrame frame = new JFrame("Roulette");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
+        frame.setResizable(false);
 
         JPanel tablePanel = new JPanel(new GridBagLayout());
         tablePanel.setBackground(Color.DARK_GRAY);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(2, 2, 2, 2);
 
-        // Add zero on the left, occupying the height of 3 rows
+        // Zero na lewo, zajmujące wysokość 3 rzędów
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridheight = 3;
         gbc.fill = GridBagConstraints.BOTH;
         JLabel zeroLabel = createLabel("0", "GREEN");
         tablePanel.add(zeroLabel, gbc);
-
-        // Reset gridheight for the following elements
         gbc.gridheight = 1;
 
-        // Add numbers 1-36 in 3 rows and 12 columns
+        // Numery 1-36 w 3 rzędach po 12 kolumn
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 12; col++) {
-                int number = col * 3 + (3 - row); // Calculate the roulette number
+                int number = col * 3 + (3 - row);
                 gbc.gridx = col + 1;
                 gbc.gridy = row;
                 JLabel label = createLabel(String.valueOf(number), NUMBER_COLORS.get(number));
@@ -57,25 +56,56 @@ public class RouletteView extends JPanel {
             }
         }
 
-        // Add column for betting on rows
+
+        // Kolumna do obstawiania wierszy
         for (int i = 0; i < 3; i++) {
-            gbc.gridx = 13;
-            gbc.gridy = i;
-            JLabel rowBetLabel = createLabel("Row " + (i + 1), "GRAY");
+            gbc.gridx = 13; // Ustaw kolumnę na 13
+            gbc.gridy = i; // Ustaw wiersz
+            JLabel rowBetLabel = createLabel((i + 1) + "st row", "GRAY"); // Zmiana etykiety
+            if (i == 1) {
+                rowBetLabel.setText("2nd row"); // Dla drugiego wiersza
+            } else if (i == 2) {
+                rowBetLabel.setText("3rd row"); // Dla trzeciego wiersza
+            }
             tablePanel.add(rowBetLabel, gbc);
         }
 
-        // Panel for betting on dozens, color, half, and even/odd
-        JPanel bottomPanel = new JPanel(new GridLayout(1, 7, 5, 5));
-        bottomPanel.setBackground(Color.DARK_GRAY);
+        // Panel dolny z opcjami zakładów
 
-        bottomPanel.add(createLabel("1st 12", "GRAY"));
-        bottomPanel.add(createLabel("2nd 12", "GRAY"));
-        bottomPanel.add(createLabel("3rd 12", "GRAY"));
-        bottomPanel.add(createLabel("1-18", "GRAY"));
-        bottomPanel.add(createLabel("EVEN", "GRAY"));
-        bottomPanel.add(createLabel("RED", "RED"));
-        bottomPanel.add(createLabel("BLACK", "BLACK"));
+        JPanel bottomPanel = new JPanel(new GridBagLayout());
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(0, 52, 0, 52)); // Przesunięcie o szerokość pola "0"
+
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1.0;
+
+// Zakłady tuzinowe (3 pola, każde zajmuje 4 kolumny, żeby zmieściło się w 12 kolumnach)
+        gbc.gridwidth = 4;
+        gbc.gridy = 0;
+        gbc.gridx = 0;
+        bottomPanel.add(createLabel("1st 12", "GRAY"), gbc);
+        gbc.gridx = 4;
+        bottomPanel.add(createLabel("2nd 12", "GRAY"), gbc);
+        gbc.gridx = 8;
+        bottomPanel.add(createLabel("3rd 12", "GRAY"), gbc);
+
+// Zakłady dolne (6 pól, każde zajmuje 2 kolumny, żeby zmieściło się w 12 kolumnach)
+        gbc.gridwidth = 2;
+        gbc.gridy = 1;
+        gbc.gridx = 0;
+        bottomPanel.add(createLabel("1-18", "GRAY"), gbc);
+        gbc.gridx = 2;
+        bottomPanel.add(createLabel("EVEN", "GRAY"), gbc);
+        gbc.gridx = 4;
+        bottomPanel.add(createLabel("RED", "RED"), gbc);
+        gbc.gridx = 6;
+        bottomPanel.add(createLabel("BLACK", "BLACK"), gbc);
+        gbc.gridx = 8;
+        bottomPanel.add(createLabel("ODD", "GRAY"), gbc);
+        gbc.gridx = 10;
+        bottomPanel.add(createLabel("19-36", "GRAY"), gbc);
+
+
+
 
         frame.add(tablePanel, BorderLayout.CENTER);
         frame.add(bottomPanel, BorderLayout.SOUTH);
@@ -104,5 +134,6 @@ public class RouletteView extends JPanel {
             }
         });
         return label;
+
     }
 }

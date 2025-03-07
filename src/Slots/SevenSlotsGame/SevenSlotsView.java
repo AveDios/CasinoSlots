@@ -59,10 +59,12 @@ public class SevenSlotsView extends JFrame {
         sevenSlots.makeBoard();
         updateBoard();
 
-        WinInfo winInfo = sevenSlots.getWinInfo();
+        WinInfo winPossibilitiesInfo = sevenSlots.getWinInfo();
+        double winValueInfo = SevenSlotsWinPriceLogic.getWinValue(winPossibilitiesInfo);
 
-        if (winInfo != null) {
-            System.out.println(winInfo);
+        if (winPossibilitiesInfo != null) {
+            System.out.println(winPossibilitiesInfo);
+            System.out.println(winValueInfo);
             JOptionPane.showMessageDialog(null,"You Win!", null, JOptionPane.INFORMATION_MESSAGE);
         }
     }
