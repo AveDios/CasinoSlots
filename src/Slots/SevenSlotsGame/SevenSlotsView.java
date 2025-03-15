@@ -84,7 +84,7 @@ public class SevenSlotsView extends JFrame {
     private ImageIcon getScaledIcon(ImageIcon icon, int width, int height) {
         if (icon == null || icon.getImage() == null) return null;
 
-        int targetSize = 32; // Ustalony rozmiar ikon 32x32
+        int targetSize = (width + height) / 2; // Ustalony rozmiar ikon 32x32
         Image img = icon.getImage().getScaledInstance(targetSize, targetSize, Image.SCALE_SMOOTH);
 
         return new ImageIcon(img);

@@ -66,7 +66,7 @@ public class User {
         return Pattern.compile(passwordRegex).matcher(password).matches();
     }
 
-    private String hashPassword(String password) {
+    public static String hashPassword(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] hash = md.digest(password.getBytes());

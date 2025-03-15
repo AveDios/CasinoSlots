@@ -1,6 +1,8 @@
 package Slots.TwoDimensionalSlots;
 
 import Assets.TwoDimensionalSlotsColors;
+import JDBC.Slots.DataGathering;
+import JDBC.User.UserLoginJDBC;
 import Slots.WinInfo.WinInfo;
 
 import javax.swing.*;
@@ -11,6 +13,8 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.sql.SQLException;
 import java.util.List;
+
+import static JDBC.ConnectionInit.connection;
 
 public class TwoDimensionalSlotsView extends JFrame {
     private TwoDimensionalSlotsLogic twoDimensionalSlotsGameLogic;
@@ -85,8 +89,9 @@ public class TwoDimensionalSlotsView extends JFrame {
             JOptionPane.showMessageDialog(null, "You win! Your price is: " + winValue, "High Score", JOptionPane.INFORMATION_MESSAGE);
             System.out.println(winValue);
 
-            // DataGathering.insertWinData(ConnectionInit.getConnection(), "Two Dimensional Slots Game", price, true);
+            DataGathering.insertSlotsData(connection, UserLoginJDBC.userID(connection, "test1", "test"),winInfo.getWinType(),winInfo.getWinningSymbol().toString(),winInfo.getWinningFields(),winValue,true);
         } else {
+            DataGathering.insertSlotsData(connection, UserLoginJDBC.userID(connection, "test1", "test"),null,null,null,0.0,false);
             winnerInfo.setText("You lost!");
             System.out.println("You lost!");
             // DataGathering.insertWinData(ConnectionInit.getConnection(), "Two Dimensional Slots Game", 0, false);

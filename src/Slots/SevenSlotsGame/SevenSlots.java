@@ -12,6 +12,7 @@ import java.util.Random;
 public class SevenSlots {
 
     static Random rand = new Random();
+
     ImageIcon[] symbols;
 
     @Getter

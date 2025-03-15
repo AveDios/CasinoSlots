@@ -1,29 +1,45 @@
+import JDBC.ConnectionInit;
+import JDBC.User.UserRegisterJDBC;
 import Slots.SevenSlotsGame.SevenSlots;
 import Slots.SevenSlotsGame.SevenSlotsView;
 import Slots.TwoDimensionalSlots.TwoDimensionalSlotsView;
+import UserLoginRegister.LoginView;
+import UserLoginRegister.RegisterView;
+import UserLoginRegister.User;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
+
 
 public class Main {
     public static void main(String[] args) throws SQLException, IOException {
 
-        SwingUtilities.invokeLater(SevenSlotsView::new);
+        Connection connection = ConnectionInit.getConnection();
 //
-//        try {
-//            ConnectionInit.init();
-//            Connection connection = ConnectionInit.getConnection();
-//
-//            UserRegisterJDBC.insertUserData(connection, testUser.getUsername(), testUser.getHashedPassword(), testUser.getLevel(), testUser.getExperience(), testUser.getBalance());
+        try {
+            ConnectionInit.init();
 
+            SwingUtilities.invokeLater(RegisterView::new);
+//            User testUser = new User("test1", "test");
+//
+//            UserRegisterJDBC.insertUserData(ConnectionInit.getConnection(), testUser.getUsername(), testUser.getHashedPassword(), 100);
+//
 //            System.out.println(testUser.getHashedPassword());
-//
-//
-//            ConnectionInit.close();
-//        } catch (SQLException | IOException e) {
-//            e.printStackTrace();
-//        }
+
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                try {
+                    ConnectionInit.close();
+                    System.out.println("Połączenie zostało zamknięte.");
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
 
 

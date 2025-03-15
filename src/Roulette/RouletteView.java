@@ -9,6 +9,7 @@ import java.util.Map;
 
 public class RouletteView extends JPanel {
     private static final Map<Integer, String> NUMBER_COLORS = new HashMap<>();
+    private static double betValue = 0; // Zmienna do przechowywania wartości zakładu
 
     static {
         int[] redNumbers = {1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36};
@@ -56,7 +57,6 @@ public class RouletteView extends JPanel {
             }
         }
 
-
         // Kolumna do obstawiania wierszy
         for (int i = 0; i < 3; i++) {
             gbc.gridx = 13; // Ustaw kolumnę na 13
@@ -71,14 +71,13 @@ public class RouletteView extends JPanel {
         }
 
         // Panel dolny z opcjami zakładów
-
         JPanel bottomPanel = new JPanel(new GridBagLayout());
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(0, 52, 0, 52)); // Przesunięcie o szerokość pola "0"
 
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1.0;
 
-// Zakłady tuzinowe (3 pola, każde zajmuje 4 kolumny, żeby zmieściło się w 12 kolumnach)
+        // Zakłady tuzinowe (3 pola, każde zajmuje 4 kolumny, żeby zmieściło się w 12 kolumnach)
         gbc.gridwidth = 4;
         gbc.gridy = 0;
         gbc.gridx = 0;
@@ -88,7 +87,7 @@ public class RouletteView extends JPanel {
         gbc.gridx = 8;
         bottomPanel.add(createLabel("3rd 12", "GRAY"), gbc);
 
-// Zakłady dolne (6 pól, każde zajmuje 2 kolumny, żeby zmieściło się w 12 kolumnach)
+        // Zakłady dolne (6 pól, każde zajmuje 2 kolumny, żeby zmieściło się w 12 kolumnach)
         gbc.gridwidth = 2;
         gbc.gridy = 1;
         gbc.gridx = 0;
@@ -104,8 +103,34 @@ public class RouletteView extends JPanel {
         gbc.gridx = 10;
         bottomPanel.add(createLabel("19-36", "GRAY"), gbc);
 
+        // Dodanie etykiety "Spin" i pola do wpisania wartości zakładu
+        gbc.gridwidth = 1;
+        gbc.gridy = 2;
+        gbc.gridx = 0;
+        bottomPanel.add(createLabel("Spin", "GRAY"), gbc);
 
+        JTextField betValueField = new JTextField(10);
+        gbc.gridx = 1;
+        bottomPanel.add(betValueField, gbc);
 
+        // Dodanie MouseListener na label "Spin"
+        JLabel spinLabel = createLabel("Spin", "GRAY");
+        spinLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                try {
+                    // Odczytujemy wartość z pola tekstowego i zapisujemy do zmiennej
+                    betValue = Double.parseDouble(betValueField.getText());
+                    System.out.println("Bet value set to: " + betValue);
+                } catch (NumberFormatException ex) {
+                    // Obsługa błędu, jeśli użytkownik wprowadził coś niepoprawnego
+                    JOptionPane.showMessageDialog(frame, "Please enter a valid number for the bet value.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        gbc.gridx = 2;
+        bottomPanel.add(spinLabel, gbc);
 
         frame.add(tablePanel, BorderLayout.CENTER);
         frame.add(bottomPanel, BorderLayout.SOUTH);
@@ -134,6 +159,5 @@ public class RouletteView extends JPanel {
             }
         });
         return label;
-
     }
 }

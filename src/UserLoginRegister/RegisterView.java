@@ -1,21 +1,22 @@
 package UserLoginRegister;
 
-import Slots.TwoDimensionalSlots.TwoDimensionalSlotsView;
+import JDBC.ConnectionInit;
+import JDBC.User.UserRegisterJDBC;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Arrays;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 
-import static JDBC.User.UserLoginJDBC.isCorrectLogin;
-
-public class LoginView extends JFrame {
+public class RegisterView extends JFrame {
     private final JTextField loginText;
     private final JPasswordField passwordText;
+    private final JTextField reEnterPassword;  // Dodane pole tekstowe
 
-    public  LoginView() {
-        super("Login");
+    public  RegisterView() {
+        super("Register");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(400, 300);
+        setSize(400, 350); // Zwiększamy rozmiar okna, aby pomieścić nowe pole
         setLocationRelativeTo(null);
         setResizable(false);
 
@@ -58,36 +59,47 @@ public class LoginView extends JFrame {
         gbc.gridx = 1;
         add(passwordText, gbc);
 
-        // Przycisk logowania
-        JButton loginButton = new JButton("Login");
+        // Etykieta i pole tekstowe dla e-maila
+        JLabel emailLabel = new JLabel("Re enter password");
         gbc.gridx = 0;
         gbc.gridy = 3;
+        add(emailLabel, gbc);
+
+        reEnterPassword = new JPasswordField(15);  // Nowe pole tekstowe dla emaila
+        gbc.gridx = 1;
+        add(reEnterPassword, gbc);
+
+        // Przycisk rejestracji
+        JButton registerButton = new JButton("Register");
+        gbc.gridx = 0;
+        gbc.gridy = 4;
         gbc.gridwidth = 2; // Przycisk zajmuje dwie kolumny
-        add(loginButton, gbc);
+        add(registerButton, gbc);
 
-        getRootPane().setDefaultButton(loginButton); // Obsługa Entera
+        getRootPane().setDefaultButton(registerButton); // Obsługa Entera
 
-        loginButton.addActionListener(e -> performLogin());
-        passwordText.addActionListener(e -> performLogin());
-        loginText.addActionListener(e -> performLogin());
+        registerButton.addActionListener(e -> performRegister());
+        passwordText.addActionListener(e -> performRegister());
+        loginText.addActionListener(e -> performRegister());
+        reEnterPassword.addActionListener(e -> performRegister());
 
         setVisible(true);
     }
 
-    private void performLogin() {
+    private void performRegister() {
+        // Logika rejestracji
         String login = loginText.getText().trim();
         char[] password = passwordText.getPassword();
         String passwordStr = new String(password); // Konwertowanie char[] na String
-
-        // Sprawdzanie danych logowania w bazie
-        if (isCorrectLogin(login, passwordStr)) {
-            dispose();  // Zamknij bieżące okno logowania
-            new TwoDimensionalSlotsView();  // Otwórz główne okno aplikacji
+        if (!passwordStr.equals(reEnterPassword.getText())) {
+            JOptionPane.showMessageDialog(this, "Passwords do not match");
         } else {
-            JOptionPane.showMessageDialog(this, "Wrong login or password", "Error", JOptionPane.ERROR_MESSAGE);
-        }
+            if (UserRegisterJDBC.isLoginExist(ConnectionInit.getConnection(), login)) {
+                JOptionPane.showMessageDialog(this, "Login already exist");
+            }else {
+                JOptionPane.showMessageDialog(this, "Welcome to casino");
+            }
 
-        // Czyszczenie hasła z pamięci
-        Arrays.fill(password, '\0');
+        }
     }
 }
