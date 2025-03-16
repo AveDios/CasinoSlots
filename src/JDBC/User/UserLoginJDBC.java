@@ -44,4 +44,19 @@ public class UserLoginJDBC {
             }
         }
     }
+
+    public static double userBalance(Connection connection, int user_id) throws SQLException {
+        String sql = "SELECT balance FROM balance WHERE user_id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, user_id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble("balance"); // Zwraca saldo użytkownika
+                } else {
+                    return -1.0; // Wartość domyślna, jeśli użytkownik nie istnieje
+                }
+            }
+        }
+    }
 }

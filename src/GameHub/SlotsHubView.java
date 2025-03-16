@@ -1,6 +1,6 @@
 package GameHub;
 
-import Roulette.RouletteView;
+import Slots.SevenSlotsGame.SevenSlotsView;
 import Slots.TwoDimensionalSlots.TwoDimensionalSlotsView;
 
 import javax.imageio.ImageIO;
@@ -11,33 +11,27 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 
-public class GameHubView extends JFrame {
-
-    public GameHubView() {
-        setTitle("Casino Game Menu");
+public class SlotsHubView extends JFrame{
+    public SlotsHubView() {
+        super("Slot Hub");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 400);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // 🔹 Górny pasek z wiadomością
-        JLabel messageLabel = new JLabel("Welcome to the Casino!", SwingConstants.CENTER);
+        JLabel messageLabel = new JLabel("Choose Slot Game");
         messageLabel.setFont(new Font("Arial", Font.BOLD, 18));
         add(messageLabel, BorderLayout.NORTH);
 
-        // 🔹 Panel z 3 sekcjami
-        JPanel gamePanel = new JPanel(new GridLayout(1, 3, 5, 0)); // 1 rząd, 3 kolumny
+        JPanel gamePanel = new JPanel(new GridLayout(1, 2,5,0));
         add(gamePanel, BorderLayout.CENTER);
 
-        // 🔹 Dodanie 3 sekcji
-        gamePanel.add(createGameSection("Roulette", "src/Assets/HubBackground/roulette_background.png", "roulette"));
-        gamePanel.add(createGameSection("Slots", "src/Assets/HubBackground/slots_background.png", "slots"));
-        gamePanel.add(createGameSection("BlackJack", "src/Assets/HubBackground/blackjack_background.png", "blackjack"));
+        gamePanel.add(createGameSection("SevenSlots", "src/Assets/HubBackground/sevenSlots.png", "SevenSlots"));
+        gamePanel.add(createGameSection("TwoDimensionalSlots", "src/Assets/HubBackground/twoDimensionalSlots.png", "TwoDimensionalSlots"));
 
         setVisible(true);
     }
 
-    // 📌 Metoda do tworzenia sekcji gry
     private JPanel createGameSection(String gameName, String backgroundImage, String gameType) {
         JPanel panel = new JPanel() {
             @Override
@@ -72,18 +66,15 @@ public class GameHubView extends JFrame {
         return panel;
     }
 
-    private void startGame(String gameType) {
-        switch (gameType) {
-            case "roulette":
-                new RouletteView();
+    private void startGame(String gameName) {
+        switch(gameName) {
+            case "SevenSlots":
+                new SevenSlotsView();
                 break;
-            case "slots":
-                new SlotsHubView();
+            case "TwoDimensionalSlots":
+                new TwoDimensionalSlotsView();
                 break;
-            case "blackjack":
-//                startBlackjack();
-                break;
+
         }
     }
 }
-

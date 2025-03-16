@@ -30,31 +30,31 @@ public class User {
         this.experience = 0;
     }
 
-    public void addExperience(int experienceToAdd) {
-        this.experience += experienceToAdd;
-        updateLevel();
-    }
-
-    public int getExperienceToNextLevel() {
-        int experienceNeeded = calculateExperienceToNextLevel(this.level) - this.experience;
-        return Math.max(0, experienceNeeded); // Zwracamy 0, jeśli użytkownik już przekroczył próg
-    }
-
-    private void updateLevel() {
-        int experienceToNextLevel = calculateExperienceToNextLevel(this.level);
-
-        while (this.experience >= experienceToNextLevel) {
-            this.level++;
-            this.experience -= experienceToNextLevel;
-            experienceToNextLevel = calculateExperienceToNextLevel(this.level);
-            System.out.println("Użytkownik " + this.username + " awansował na poziom " + this.level + "!");
-        }
-    }
-
-    public int calculateExperienceToNextLevel(int level) {
-        return 50 * level + 50;
-    }
-
+//    public void addExperience(int experienceToAdd) {
+//        this.experience += experienceToAdd;
+//        updateLevel();
+//    }
+//
+//    public int getExperienceToNextLevel() {
+//        int experienceNeeded = calculateExperienceToNextLevel(this.level) - this.experience;
+//        return Math.max(0, experienceNeeded); // Zwracamy 0, jeśli użytkownik już przekroczył próg
+//    }
+//
+//    private void updateLevel() {
+//        int experienceToNextLevel = calculateExperienceToNextLevel(this.level);
+//
+//        while (this.experience >= experienceToNextLevel) {
+//            this.level++;
+//            this.experience -= experienceToNextLevel;
+//            experienceToNextLevel = calculateExperienceToNextLevel(this.level);
+//            System.out.println("Użytkownik " + this.username + " awansował na poziom " + this.level + "!");
+//        }
+//    }
+//
+//    public int calculateExperienceToNextLevel(int level) {
+//        return 50 * level + 50;
+//    }
+//
 
     private boolean isValidUserName(String userName) {
         String userRegex = "^[a-zA-Z0-9_-]{3,16}$";
@@ -83,14 +83,14 @@ public class User {
         }
     }
 
-    public boolean verifyPassword(String password) {
-        return this.hashedPassword.equals(hashPassword(password));
-    }
+//    public boolean verifyPassword(String password) {
+//        return this.hashedPassword.equals(hashPassword(password));
+//    }
 
 
 
     // Adds winnings to the player's balance
-    public void addWinnings(int amount) {
-        balance += amount;
-    }
+//    public void addWinnings(int amount) {
+//        balance += amount;
+//    }
 }

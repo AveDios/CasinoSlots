@@ -1,3 +1,5 @@
+import GameHub.GameHubView;
+import GameHub.SlotsHubView;
 import JDBC.ConnectionInit;
 import JDBC.User.UserRegisterJDBC;
 import Slots.SevenSlotsGame.SevenSlots;
@@ -16,29 +18,22 @@ import java.sql.SQLException;
 public class Main {
     public static void main(String[] args) throws SQLException, IOException {
 
-        Connection connection = ConnectionInit.getConnection();
+        // TODO: zrobić okno do dodawania balansu, dodać w kazdej grze w prawym górnym login i aktualny stan balansu
+
 //
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                ConnectionInit.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }));
+
         try {
             ConnectionInit.init();
-
-            SwingUtilities.invokeLater(RegisterView::new);
-//            User testUser = new User("test1", "test");
-//
-//            UserRegisterJDBC.insertUserData(ConnectionInit.getConnection(), testUser.getUsername(), testUser.getHashedPassword(), 100);
-//
-//            System.out.println(testUser.getHashedPassword());
-
+            SwingUtilities.invokeLater(LoginView::new);
         } catch (SQLException | IOException e) {
             e.printStackTrace();
-        } finally {
-            if (connection != null) {
-                try {
-                    ConnectionInit.close();
-                    System.out.println("Połączenie zostało zamknięte.");
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
 
 

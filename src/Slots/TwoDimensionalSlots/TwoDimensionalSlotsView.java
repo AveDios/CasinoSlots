@@ -1,7 +1,9 @@
 package Slots.TwoDimensionalSlots;
 
 import Assets.TwoDimensionalSlotsColors;
-import JDBC.Slots.DataGathering;
+import JDBC.ConnectionInit;
+import JDBC.Slots.BalanceChanger;
+import JDBC.Slots.TwoDimensionalSlots.DataGathering;
 import JDBC.User.UserLoginJDBC;
 import Slots.WinInfo.WinInfo;
 
@@ -15,12 +17,14 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static JDBC.ConnectionInit.connection;
+import static UserLoginRegister.LoginView.userId;
 
 public class TwoDimensionalSlotsView extends JFrame {
     private TwoDimensionalSlotsLogic twoDimensionalSlotsGameLogic;
     private JLabel[][] labels = new JLabel[3][5];
     private JButton spinButton;
     private JLabel winnerInfo;
+    public static double userBalance;
 
     public TwoDimensionalSlotsView() {
         twoDimensionalSlotsGameLogic = new TwoDimensionalSlotsLogic();
@@ -72,6 +76,14 @@ public class TwoDimensionalSlotsView extends JFrame {
     }
 
     private void spin() throws SQLException {
+        double gameCost = 25.0;
+        userBalance = UserLoginJDBC.userBalance(connection,userId);
+
+        if (userBalance < gameCost) {
+            JOptionPane.showMessageDialog(null,"Insufficient balance! You need at least " + gameCost + " to play.", "Error",JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         twoDimensionalSlotsGameLogic.makeBoard();
         updateBoard();
 
@@ -82,19 +94,26 @@ public class TwoDimensionalSlotsView extends JFrame {
         if (winInfo != null) {
             // Podświetlamy tylko pola odpowiadające typowi wygranej, który ma najwyższy priorytet
             highlightWinningFields(winInfo);
-//            DataGathering.insertWinData(ConnectionInit.getConnection(),winInfo.getWinGameName(),winInfo.getvalue,true,winInfo.getWinType());
             winnerInfo.setText("You win! (" + winInfo.getWinType() + ")");
             System.out.println("You win!");
             System.out.println(winInfo);
-            JOptionPane.showMessageDialog(null, "You win! Your price is: " + winValue, "High Score", JOptionPane.INFORMATION_MESSAGE);
-            System.out.println(winValue);
 
-            DataGathering.insertSlotsData(connection, UserLoginJDBC.userID(connection, "test1", "test"),winInfo.getWinType(),winInfo.getWinningSymbol().toString(),winInfo.getWinningFields(),winValue,true);
+
+            double valueReturnAfterGame = winValue - gameCost;
+            System.out.println("Win value after: (winValue - gameCost): " + valueReturnAfterGame);
+
+            //Aktualizacja balansu gracza
+            BalanceChanger.changeBalance(connection, userId, userBalance + valueReturnAfterGame);
+
+            //Zapis wyników do bazy danych
+            DataGathering.insertSlotsData(connection, userId, winInfo.getWinType(),winInfo.getWinningSymbol().toString(),winInfo.getWinningFields(),winValue,true);
+
+            JOptionPane.showMessageDialog(null, "You win! Your price is: " + winValue, "High Score", JOptionPane.INFORMATION_MESSAGE);
         } else {
-            DataGathering.insertSlotsData(connection, UserLoginJDBC.userID(connection, "test1", "test"),null,null,null,0.0,false);
+            BalanceChanger.changeBalance(connection, userId, userBalance - gameCost);
+            DataGathering.insertSlotsData(connection, userId, null, null, null, 0.0, false);
             winnerInfo.setText("You lost!");
             System.out.println("You lost!");
-            // DataGathering.insertWinData(ConnectionInit.getConnection(), "Two Dimensional Slots Game", 0, false);
         }
         Thread.yield();
     }

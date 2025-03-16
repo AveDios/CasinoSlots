@@ -1,5 +1,9 @@
 package Slots.SevenSlotsGame;
 
+import JDBC.ConnectionInit;
+import JDBC.Slots.BalanceChanger;
+import JDBC.Slots.SevenSlots.DataGathering;
+import JDBC.User.UserLoginJDBC;
 import Slots.WinInfo.WinInfo;
 
 import javax.swing.*;
@@ -8,10 +12,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 
+import static JDBC.ConnectionInit.connection;
+import static UserLoginRegister.LoginView.userId;
+
 public class SevenSlotsView extends JFrame {
     private SevenSlots sevenSlots;
     private JButton spinButton;
     private JLabel[] slotLabel = new JLabel[5];
+    public static double userBalance;
 
     public SevenSlotsView() {
         sevenSlots = new SevenSlots();
@@ -56,6 +64,14 @@ public class SevenSlotsView extends JFrame {
     }
 
     private void spin() throws SQLException {
+        double gameCost = 20.0;
+        userBalance = UserLoginJDBC.userBalance(connection, userId);
+
+        if (userBalance < gameCost) {
+            JOptionPane.showMessageDialog(null,"Insufficient balance! You need at least " + gameCost + " to play.", "Error",JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         sevenSlots.makeBoard();
         updateBoard();
 
@@ -65,8 +81,19 @@ public class SevenSlotsView extends JFrame {
         if (winPossibilitiesInfo != null) {
             System.out.println(winPossibilitiesInfo);
             System.out.println(winValueInfo);
+
+            double valueReturnAfterSpin = winValueInfo - gameCost;
+            System.out.println("Win value after: (winValue - gameCost): " + valueReturnAfterSpin);
+
+            BalanceChanger.changeBalance(ConnectionInit.getConnection(), userId,userBalance + valueReturnAfterSpin);
+
+            DataGathering.insertSlotsData(connection, userId, winPossibilitiesInfo.getWinType(), winPossibilitiesInfo.getWinningSymbol().toString(), winPossibilitiesInfo.getWinPossibilities(), winValueInfo, true);
             JOptionPane.showMessageDialog(null,"You Win!", null, JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            BalanceChanger.changeBalance(connection, userId, userBalance - gameCost);
+            DataGathering.insertSlotsData(connection, userId, null, null, null, 0.0, false);
         }
+        Thread.yield();
     }
 
     private void updateBoard() {

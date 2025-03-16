@@ -1,5 +1,6 @@
 package UserLoginRegister;
 
+import GameHub.GameHubView;
 import JDBC.ConnectionInit;
 import JDBC.User.UserRegisterJDBC;
 
@@ -97,7 +98,11 @@ public class RegisterView extends JFrame {
             if (UserRegisterJDBC.isLoginExist(ConnectionInit.getConnection(), login)) {
                 JOptionPane.showMessageDialog(this, "Login already exist");
             }else {
+                User user = new User(login, passwordStr);
+                UserRegisterJDBC.insertUserData(ConnectionInit.getConnection(), user.getUsername(), user.getHashedPassword(), 100);
                 JOptionPane.showMessageDialog(this, "Welcome to casino");
+                dispose();
+                new GameHubView();
             }
 
         }

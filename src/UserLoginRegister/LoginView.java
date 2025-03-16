@@ -1,9 +1,13 @@
 package UserLoginRegister;
 
+import GameHub.GameHubView;
+import JDBC.ConnectionInit;
+import JDBC.User.UserLoginJDBC;
 import Slots.TwoDimensionalSlots.TwoDimensionalSlotsView;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.SQLException;
 import java.util.Arrays;
 
 import static JDBC.User.UserLoginJDBC.isCorrectLogin;
@@ -11,6 +15,8 @@ import static JDBC.User.UserLoginJDBC.isCorrectLogin;
 public class LoginView extends JFrame {
     private final JTextField loginText;
     private final JPasswordField passwordText;
+    public static int userId;
+
 
     public  LoginView() {
         super("Login");
@@ -67,22 +73,41 @@ public class LoginView extends JFrame {
 
         getRootPane().setDefaultButton(loginButton); // Obsługa Entera
 
-        loginButton.addActionListener(e -> performLogin());
-        passwordText.addActionListener(e -> performLogin());
-        loginText.addActionListener(e -> performLogin());
+        loginButton.addActionListener(e -> {
+            try {
+                performLogin();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        passwordText.addActionListener(e -> {
+            try {
+                performLogin();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        loginText.addActionListener(e -> {
+            try {
+                performLogin();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         setVisible(true);
     }
 
-    private void performLogin() {
+    private void performLogin() throws SQLException {
         String login = loginText.getText().trim();
         char[] password = passwordText.getPassword();
         String passwordStr = new String(password); // Konwertowanie char[] na String
 
         // Sprawdzanie danych logowania w bazie
         if (isCorrectLogin(login, passwordStr)) {
+            userId = UserLoginJDBC.userID(ConnectionInit.getConnection(),login,passwordStr);
             dispose();  // Zamknij bieżące okno logowania
-            new TwoDimensionalSlotsView();  // Otwórz główne okno aplikacji
+            new GameHubView();  // Otwórz główne okno aplikacji
         } else {
             JOptionPane.showMessageDialog(this, "Wrong login or password", "Error", JOptionPane.ERROR_MESSAGE);
         }

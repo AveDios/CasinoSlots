@@ -22,11 +22,7 @@ public class RouletteView extends JPanel {
         NUMBER_COLORS.put(0, "GREEN");
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(RouletteView::createAndShowGUI);
-    }
-
-    private static void createAndShowGUI() {
+    public RouletteView() {
         JFrame frame = new JFrame("Roulette");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
