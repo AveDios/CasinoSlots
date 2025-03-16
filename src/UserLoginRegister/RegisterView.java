@@ -9,6 +9,8 @@ import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
+import static JDBC.ConnectionInit.connection;
+
 public class RegisterView extends JFrame {
     private final JTextField loginText;
     private final JPasswordField passwordText;
@@ -95,11 +97,11 @@ public class RegisterView extends JFrame {
         if (!passwordStr.equals(reEnterPassword.getText())) {
             JOptionPane.showMessageDialog(this, "Passwords do not match");
         } else {
-            if (UserRegisterJDBC.isLoginExist(ConnectionInit.getConnection(), login)) {
+            if (UserRegisterJDBC.isLoginExist(connection, login)) {
                 JOptionPane.showMessageDialog(this, "Login already exist");
             }else {
                 User user = new User(login, passwordStr);
-                UserRegisterJDBC.insertUserData(ConnectionInit.getConnection(), user.getUsername(), user.getHashedPassword(), 100);
+                UserRegisterJDBC.insertUserData(connection, user.getUsername(), user.getHashedPassword(), 100);
                 JOptionPane.showMessageDialog(this, "Welcome to casino");
                 dispose();
                 new GameHubView();

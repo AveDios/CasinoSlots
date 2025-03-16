@@ -64,7 +64,7 @@ public class SevenSlotsView extends JFrame {
     }
 
     private void spin() throws SQLException {
-        double gameCost = 20.0;
+        double gameCost = 10.0;
         userBalance = UserLoginJDBC.userBalance(connection, userId);
 
         if (userBalance < gameCost) {

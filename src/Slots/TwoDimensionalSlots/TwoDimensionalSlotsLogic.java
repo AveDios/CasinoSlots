@@ -22,7 +22,7 @@ public class TwoDimensionalSlotsLogic {
     }
 
     private void loadSymbols() {
-        symbols = new ImageIcon[2];
+        symbols = new ImageIcon[3];
         String cherry = "src/Assets/symbols/cherry.png";
         String lemon = "src/Assets/symbols/lemon.png";
         String orange = "src/Assets/symbols/orange.png";
@@ -30,7 +30,8 @@ public class TwoDimensionalSlotsLogic {
         symbols[0].setDescription("cherry");
         symbols[1] = new ImageIcon(lemon);
         symbols[1].setDescription("lemon");
-//        Assets.symbols[2] = new ImageIcon(orange);
+        symbols[2] = new ImageIcon(orange);
+        symbols[2].setDescription("orange");
     }
 
     public void makeBoard() {

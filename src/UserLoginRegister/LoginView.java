@@ -10,6 +10,7 @@ import java.awt.*;
 import java.sql.SQLException;
 import java.util.Arrays;
 
+import static JDBC.ConnectionInit.connection;
 import static JDBC.User.UserLoginJDBC.isCorrectLogin;
 
 public class LoginView extends JFrame {
@@ -105,7 +106,7 @@ public class LoginView extends JFrame {
 
         // Sprawdzanie danych logowania w bazie
         if (isCorrectLogin(login, passwordStr)) {
-            userId = UserLoginJDBC.userID(ConnectionInit.getConnection(),login,passwordStr);
+            userId = UserLoginJDBC.userID(connection,login,passwordStr);
             dispose();  // Zamknij bieżące okno logowania
             new GameHubView();  // Otwórz główne okno aplikacji
         } else {
