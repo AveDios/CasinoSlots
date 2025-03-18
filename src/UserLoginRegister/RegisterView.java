@@ -79,12 +79,23 @@ public class RegisterView extends JFrame {
         gbc.gridwidth = 2; // Przycisk zajmuje dwie kolumny
         add(registerButton, gbc);
 
+        JButton loginButton = new JButton("Already have an account? Login into it.");
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.gridwidth = 2;
+        add(loginButton, gbc);
+
         getRootPane().setDefaultButton(registerButton); // Obsługa Entera
 
         registerButton.addActionListener(e -> performRegister());
         passwordText.addActionListener(e -> performRegister());
         loginText.addActionListener(e -> performRegister());
         reEnterPassword.addActionListener(e -> performRegister());
+
+        loginButton.addActionListener(e -> {
+            dispose();
+            new LoginView();
+        });
 
         setVisible(true);
     }

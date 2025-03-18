@@ -17,14 +17,17 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static JDBC.ConnectionInit.connection;
-import static UserLoginRegister.LoginView.userId;
+import static UserLoginRegister.LoginView.*;
 
 public class TwoDimensionalSlotsView extends JFrame {
     private TwoDimensionalSlotsLogic twoDimensionalSlotsGameLogic;
     private JLabel[][] labels = new JLabel[3][5];
     private JButton spinButton;
-    private JLabel winnerInfo;
-    public static double userBalance;
+    private JLabel userInfo;
+    private double userBalance;
+    private String username;
+
+
 
     public TwoDimensionalSlotsView() {
         twoDimensionalSlotsGameLogic = new TwoDimensionalSlotsLogic();
@@ -34,7 +37,8 @@ public class TwoDimensionalSlotsView extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
-        winnerInfo = new JLabel("", JLabel.CENTER);
+
+        userInfo = new JLabel("");
 
         JPanel boardPanel = new JPanel(new GridLayout(3,5));
         for (int i = 0; i < 3; i++) {
@@ -59,7 +63,7 @@ public class TwoDimensionalSlotsView extends JFrame {
             }
         });
 
-        add(winnerInfo, BorderLayout.NORTH);
+        add(userInfo, BorderLayout.NORTH);
         add(boardPanel, BorderLayout.CENTER);
         add(spinButton, BorderLayout.SOUTH);
 
@@ -78,6 +82,7 @@ public class TwoDimensionalSlotsView extends JFrame {
     private void spin() throws SQLException {
         double gameCost = 25.0;
         userBalance = UserLoginJDBC.userBalance(connection,userId);
+        username = UserLoginJDBC.getUserName(connection,userId);
 
         if (userBalance < gameCost) {
             JOptionPane.showMessageDialog(null,"Insufficient balance! You need at least " + gameCost + " to play.", "Error",JOptionPane.ERROR_MESSAGE);
@@ -94,7 +99,7 @@ public class TwoDimensionalSlotsView extends JFrame {
         if (winInfo != null) {
             // Podświetlamy tylko pola odpowiadające typowi wygranej, który ma najwyższy priorytet
             highlightWinningFields(winInfo);
-            winnerInfo.setText("You win! (" + winInfo.getWinType() + ")");
+            userInfo.setText("You win! (" + winInfo.getWinType() + ")  User: " + username + " | Balance: $" + userBalance);
             System.out.println("You win!");
             System.out.println(winInfo);
 
@@ -112,10 +117,14 @@ public class TwoDimensionalSlotsView extends JFrame {
         } else {
             BalanceChanger.changeBalance(connection, userId, userBalance - gameCost);
             DataGathering.insertSlotsData(connection, userId, null, null, null, 0.0, false);
-            winnerInfo.setText("You lost!");
+            userInfo.setText("You lost! User: " + username + " | Balance: $" + userBalance);
             System.out.println("You lost!");
         }
         Thread.yield();
+    }
+
+    private void updateUser() {
+        userInfo.setText("User: " + username + " | Balance: $" + userBalance);
     }
 
     private void updateBoard() {

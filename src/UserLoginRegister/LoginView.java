@@ -17,6 +17,7 @@ public class LoginView extends JFrame {
     private final JTextField loginText;
     private final JPasswordField passwordText;
     public static int userId;
+    public static String username;
 
 
     public  LoginView() {
@@ -72,6 +73,12 @@ public class LoginView extends JFrame {
         gbc.gridwidth = 2; // Przycisk zajmuje dwie kolumny
         add(loginButton, gbc);
 
+        JButton createAccountButton = new JButton("Register if you dont have account: Create Account");
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.gridwidth = 2;
+        add(createAccountButton, gbc);
+
         getRootPane().setDefaultButton(loginButton); // Obsługa Entera
 
         loginButton.addActionListener(e -> {
@@ -96,6 +103,11 @@ public class LoginView extends JFrame {
             }
         });
 
+        createAccountButton.addActionListener(e -> {
+            dispose();
+            new RegisterView();
+        });
+
         setVisible(true);
     }
 
@@ -107,6 +119,7 @@ public class LoginView extends JFrame {
         // Sprawdzanie danych logowania w bazie
         if (isCorrectLogin(login, passwordStr)) {
             userId = UserLoginJDBC.userID(connection,login,passwordStr);
+            username = UserLoginJDBC.getUserName(connection, userId);
             dispose();  // Zamknij bieżące okno logowania
             new GameHubView();  // Otwórz główne okno aplikacji
         } else {

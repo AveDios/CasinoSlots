@@ -59,4 +59,19 @@ public class UserLoginJDBC {
             }
         }
     }
+
+    public static String getUserName(Connection connection, int user_id) throws SQLException {
+        String sql = "SELECT login FROM users WHERE user_id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, user_id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("login");
+                } else {
+                    return null;
+                }
+            }
+        }
+    }
 }

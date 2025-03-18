@@ -61,7 +61,6 @@ public class GameHubView extends JFrame {
         playButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                dispose();
                 startGame(gameType); // Uruchomienie odpowiedniej gry po kliknięciu
             }
         });
@@ -75,12 +74,15 @@ public class GameHubView extends JFrame {
     private void startGame(String gameType) {
         switch (gameType) {
             case "roulette":
+                dispose();
                 new RouletteView();
                 break;
             case "slots":
+                dispose();
                 new SlotsHubView();
                 break;
             case "blackjack":
+                JOptionPane.showMessageDialog(this, "Game is not available yet", "Error", JOptionPane.INFORMATION_MESSAGE);
 //                startBlackjack();
                 break;
         }
