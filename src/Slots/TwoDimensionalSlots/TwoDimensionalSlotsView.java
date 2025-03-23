@@ -23,13 +23,14 @@ public class TwoDimensionalSlotsView extends JFrame {
     private TwoDimensionalSlotsLogic twoDimensionalSlotsGameLogic;
     private JLabel[][] labels = new JLabel[3][5];
     private JButton spinButton;
+    private JLabel winerInfo;
     private JLabel userInfo;
     private double userBalance;
     private String username;
 
 
 
-    public TwoDimensionalSlotsView() {
+    public TwoDimensionalSlotsView() throws SQLException {
         twoDimensionalSlotsGameLogic = new TwoDimensionalSlotsLogic();
 
         setTitle("Two Dimensional Slots");
@@ -38,7 +39,17 @@ public class TwoDimensionalSlotsView extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        userInfo = new JLabel("");
+
+
+        JPanel infoPanel = new JPanel(new GridLayout(1,2));
+//        infoPanel.setSize(400,50);
+        winerInfo = new JLabel("Spin to win!", SwingConstants.CENTER);
+        userInfo = new JLabel("", SwingConstants.CENTER);
+
+        updateUser();
+
+        infoPanel.add(winerInfo);
+        infoPanel.add(userInfo);
 
         JPanel boardPanel = new JPanel(new GridLayout(3,5));
         for (int i = 0; i < 3; i++) {
@@ -63,7 +74,34 @@ public class TwoDimensionalSlotsView extends JFrame {
             }
         });
 
-        add(userInfo, BorderLayout.NORTH);
+//        spinButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                SwingWorker<Long, Void> worker = new SwingWorker<>() {
+//                    @Override
+//                    protected Long doInBackground() throws Exception {
+//                        DataGathering dbManager = new DataGathering();
+//                        dbManager.generateAndInsertMassData(100_000, userId); // 100k rekordów
+//                        return null;
+//                    }
+//
+//                    @Override
+//                    protected void done() {
+//                        try {
+//                            long duration = get(); // Pobieramy czas z wyniku
+//                            double seconds = duration / 1000.0; // Konwersja na sekundy
+//                            JOptionPane.showMessageDialog(null,
+//                                    String.format("Wstawiono 100 000 rekordów!\nCzas operacji: %.2f sekund", seconds));
+//                        } catch (Exception ex) {
+//                            JOptionPane.showMessageDialog(null, "Błąd: " + ex.getMessage());
+//                        }
+//                    }
+//                };
+//                worker.execute();
+//            }
+//        });
+
+        add(infoPanel, BorderLayout.NORTH);
         add(boardPanel, BorderLayout.CENTER);
         add(spinButton, BorderLayout.SOUTH);
 
@@ -81,8 +119,7 @@ public class TwoDimensionalSlotsView extends JFrame {
 
     private void spin() throws SQLException {
         double gameCost = 25.0;
-        userBalance = UserLoginJDBC.userBalance(connection,userId);
-        username = UserLoginJDBC.getUserName(connection,userId);
+        updateUser();
 
         if (userBalance < gameCost) {
             JOptionPane.showMessageDialog(null,"Insufficient balance! You need at least " + gameCost + " to play.", "Error",JOptionPane.ERROR_MESSAGE);
@@ -99,7 +136,8 @@ public class TwoDimensionalSlotsView extends JFrame {
         if (winInfo != null) {
             // Podświetlamy tylko pola odpowiadające typowi wygranej, który ma najwyższy priorytet
             highlightWinningFields(winInfo);
-            userInfo.setText("You win! (" + winInfo.getWinType() + ")  User: " + username + " | Balance: $" + userBalance);
+            winerInfo.setText("You win! (" + winInfo.getWinType() + ")");
+            userInfo.setText("User: " + username + " | Balance: $" + userBalance);
             System.out.println("You win!");
             System.out.println(winInfo);
 
@@ -114,16 +152,20 @@ public class TwoDimensionalSlotsView extends JFrame {
             DataGathering.insertSlotsData(connection, userId, winInfo.getWinType(),winInfo.getWinningSymbol().toString(),winInfo.getWinningFields(),winValue,true);
 
             JOptionPane.showMessageDialog(null, "You win! Your price is: " + winValue, "High Score", JOptionPane.INFORMATION_MESSAGE);
+            updateUser();
         } else {
             BalanceChanger.changeBalance(connection, userId, userBalance - gameCost);
             DataGathering.insertSlotsData(connection, userId, null, null, null, 0.0, false);
-            userInfo.setText("You lost! User: " + username + " | Balance: $" + userBalance);
+            winerInfo.setText("You lost!");
+            updateUser();
             System.out.println("You lost!");
         }
         Thread.yield();
     }
 
-    private void updateUser() {
+    private void updateUser() throws SQLException {
+        userBalance = UserLoginJDBC.userBalance(connection,userId);
+        username = UserLoginJDBC.getUserName(connection,userId);
         userInfo.setText("User: " + username + " | Balance: $" + userBalance);
     }
 

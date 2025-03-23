@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class SlotsHubView extends JFrame{
     public SlotsHubView() {
@@ -56,7 +57,11 @@ public class SlotsHubView extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
-                startGame(gameType); // Uruchomienie odpowiedniej gry po kliknięciu
+                try {
+                    startGame(gameType); // Uruchomienie odpowiedniej gry po kliknięciu
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
@@ -66,7 +71,7 @@ public class SlotsHubView extends JFrame{
         return panel;
     }
 
-    private void startGame(String gameName) {
+    private void startGame(String gameName) throws SQLException {
         switch(gameName) {
             case "SevenSlots":
                 new SevenSlotsView();

@@ -1,5 +1,11 @@
 package JDBC.Slots.TwoDimensionalSlots;
 
+import JDBC.ConnectionInit;
+import JDBC.Slots.BalanceChanger;
+import JDBC.User.UserLoginJDBC;
+import Slots.TwoDimensionalSlots.TwoDimensionalSlotsLogic;
+import Slots.TwoDimensionalSlots.TwoDimensionalSlotsWinPriceLogic;
+import Slots.WinInfo.WinInfo;
 import Slots.WinInfo.WinType;
 
 import java.sql.Connection;
@@ -11,6 +17,7 @@ import java.util.List;
 
 
 public class DataGathering {
+
     public static void insertSlotsData(Connection connection, int user_id, WinType win_type, String winSymbol,
                                        List<int[]> winningFields, double winValue, boolean isWin) throws SQLException {
 
@@ -58,5 +65,65 @@ public class DataGathering {
             sb.deleteCharAt(sb.length() - 1);
         }
         return sb.toString();
+    }
+
+    public Long generateAndInsertMassData(int totalRecords, int userId) throws SQLException {
+        List<Object[]> slotsData = new ArrayList<>();
+        Connection connection = ConnectionInit.getConnection();
+        String username = UserLoginJDBC.getUserName(connection, userId);
+        int batchSize = 1000;
+
+        TwoDimensionalSlotsLogic twoDimensionalSlotsGameLogic = new TwoDimensionalSlotsLogic();
+
+        // Pomiar czasu rozpoczęcia
+        long startTime = System.currentTimeMillis();
+
+        connection.setAutoCommit(false);
+        try (PreparedStatement ps = connection.prepareStatement(
+                "INSERT INTO twoDimensionalSlots (user_id, win_type, win_symbol, winning_fields, win_value, is_win, date) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+            for (int i = 0; i < totalRecords; i++) {
+                twoDimensionalSlotsGameLogic.makeBoard();
+                WinInfo winInfo = twoDimensionalSlotsGameLogic.getWinInfo();
+                double winValue = TwoDimensionalSlotsWinPriceLogic.getWinValue(winInfo);
+
+                WinType winType = (winInfo != null && winInfo.getWinType() != null)
+                        ? WinType.valueOf(winInfo.getWinType().toString())
+                        : null;
+                String winTypeStr = (winType != null) ? winType.name() : "NO_WIN";
+                String winSymbol = (winInfo != null && winInfo.getWinningSymbol() != null)
+                        ? winInfo.getWinningSymbol().toString()
+                        : "NO_SYMBOL";
+                List<int[]> winningFields = (winInfo != null) ? winInfo.getWinningFields() : new ArrayList<>();
+                String coordinates = convertWinningFieldsToString(winningFields);
+
+                slotsData.add(new Object[]{userId, winTypeStr, winSymbol, coordinates, winValue, winInfo != null});
+
+                if (slotsData.size() >= batchSize || i == totalRecords - 1) {
+                    for (Object[] data : slotsData) {
+                        ps.setInt(1, (Integer) data[0]);
+                        ps.setString(2, (String) data[1]);
+                        ps.setString(3, (String) data[2]);
+                        ps.setString(4, (String) data[3]);
+                        ps.setDouble(5, (Double) data[4]);
+                        ps.setBoolean(6, (Boolean) data[5]);
+                        ps.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
+                        ps.addBatch();
+                    }
+                    ps.executeBatch();
+                    slotsData.clear();
+                    System.out.println("Wstawiono " + (i + 1) + " rekordów");
+                }
+            }
+            connection.commit();
+        } catch (SQLException e) {
+            connection.rollback();
+            throw e;
+        } finally {
+            connection.setAutoCommit(true);
+        }
+
+        // Pomiar czasu zakończenia i obliczenie różnicy
+        long endTime = System.currentTimeMillis();
+        return endTime - startTime; // Zwracamy Long (autoboxing z long na Long)
     }
 }
