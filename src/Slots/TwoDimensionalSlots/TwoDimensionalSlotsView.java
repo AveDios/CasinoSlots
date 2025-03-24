@@ -1,7 +1,7 @@
 package Slots.TwoDimensionalSlots;
 
 import Assets.TwoDimensionalSlotsColors;
-import JDBC.ConnectionInit;
+import GameHub.GameHubView;
 import JDBC.Slots.BalanceChanger;
 import JDBC.Slots.TwoDimensionalSlots.DataGathering;
 import JDBC.User.UserLoginJDBC;
@@ -23,10 +23,11 @@ public class TwoDimensionalSlotsView extends JFrame {
     private TwoDimensionalSlotsLogic twoDimensionalSlotsGameLogic;
     private JLabel[][] labels = new JLabel[3][5];
     private JButton spinButton;
-    private JLabel winerInfo;
+    private JLabel winnerInfo;
     private JLabel userInfo;
-    private double userBalance;
-    private String username;
+    private static double userBalance;
+    private static String username;
+    private JButton backButton;
 
 
 
@@ -34,21 +35,30 @@ public class TwoDimensionalSlotsView extends JFrame {
         twoDimensionalSlotsGameLogic = new TwoDimensionalSlotsLogic();
 
         setTitle("Two Dimensional Slots");
-        setSize(400, 300);
+        setSize(500, 300);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
 
 
-        JPanel infoPanel = new JPanel(new GridLayout(1,2));
-//        infoPanel.setSize(400,50);
-        winerInfo = new JLabel("Spin to win!", SwingConstants.CENTER);
+        JPanel infoPanel = new JPanel(new GridLayout(1, 3));
+        backButton = new JButton("Back");
+        backButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+                new GameHubView();
+            }
+        });
+        winnerInfo = new JLabel("Spin to win!", SwingConstants.CENTER);
         userInfo = new JLabel("", SwingConstants.CENTER);
 
         updateUser();
 
-        infoPanel.add(winerInfo);
+        infoPanel.add(backButton);
+        infoPanel.add(winnerInfo);
         infoPanel.add(userInfo);
 
         JPanel boardPanel = new JPanel(new GridLayout(3,5));
@@ -136,8 +146,8 @@ public class TwoDimensionalSlotsView extends JFrame {
         if (winInfo != null) {
             // Podświetlamy tylko pola odpowiadające typowi wygranej, który ma najwyższy priorytet
             highlightWinningFields(winInfo);
-            winerInfo.setText("You win! (" + winInfo.getWinType() + ")");
-            userInfo.setText("User: " + username + " | Balance: $" + userBalance);
+            winnerInfo.setText("You win! (" + winInfo.getWinType() + ")");
+            userInfo.setText("Balance: $" + userBalance);
             System.out.println("You win!");
             System.out.println(winInfo);
 
@@ -156,7 +166,7 @@ public class TwoDimensionalSlotsView extends JFrame {
         } else {
             BalanceChanger.changeBalance(connection, userId, userBalance - gameCost);
             DataGathering.insertSlotsData(connection, userId, null, null, null, 0.0, false);
-            winerInfo.setText("You lost!");
+            winnerInfo.setText("You lost!");
             updateUser();
             System.out.println("You lost!");
         }
@@ -166,7 +176,7 @@ public class TwoDimensionalSlotsView extends JFrame {
     private void updateUser() throws SQLException {
         userBalance = UserLoginJDBC.userBalance(connection,userId);
         username = UserLoginJDBC.getUserName(connection,userId);
-        userInfo.setText("User: " + username + " | Balance: $" + userBalance);
+        userInfo.setText("Balance: $" + userBalance);
     }
 
     private void updateBoard() {

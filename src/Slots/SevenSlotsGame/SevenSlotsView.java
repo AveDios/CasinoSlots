@@ -1,9 +1,11 @@
 package Slots.SevenSlotsGame;
 
+import GameHub.GameHubView;
 import JDBC.ConnectionInit;
 import JDBC.Slots.BalanceChanger;
 import JDBC.Slots.SevenSlots.DataGathering;
 import JDBC.User.UserLoginJDBC;
+import Slots.TwoDimensionalSlots.TwoDimensionalSlotsView;
 import Slots.WinInfo.WinInfo;
 
 import javax.swing.*;
@@ -13,21 +15,44 @@ import java.awt.event.ActionListener;
 import java.sql.SQLException;
 
 import static JDBC.ConnectionInit.connection;
-import static UserLoginRegister.LoginView.userId;
+import static UserLoginRegister.LoginView.*;
 
 public class SevenSlotsView extends JFrame {
     private SevenSlots sevenSlots;
     private JButton spinButton;
     private JLabel[] slotLabel = new JLabel[5];
+    private JLabel winnerInfo;
+    private  JLabel userInfo;
     public static double userBalance;
+    private static String username;
+    private JButton backButton;
 
-    public SevenSlotsView() {
+    public SevenSlotsView() throws SQLException {
         sevenSlots = new SevenSlots();
 
         setTitle("Seven Slots Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 200);
         setLocationRelativeTo(null);
+
+        JPanel infoPanel = new JPanel(new GridLayout(1, 3));
+        backButton = new JButton("Back");
+        backButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+                new GameHubView();
+            }
+        });
+        winnerInfo = new JLabel("Spin to win!", SwingConstants.CENTER);
+        userInfo = new JLabel("", SwingConstants.CENTER);
+
+        updateUser();
+
+        infoPanel.add(backButton);
+        infoPanel.add(winnerInfo);
+        infoPanel.add(userInfo);
 
         JPanel panel = new JPanel(new GridLayout(1, 5, 10, 10)); // 1 wiersz, 5 kolumn
         for (int i = 0; i < 5; i++) {
@@ -56,6 +81,7 @@ public class SevenSlotsView extends JFrame {
             }
         });
 
+        add(infoPanel, BorderLayout.NORTH);
         add(panel, BorderLayout.CENTER);
         add(spinButton, BorderLayout.SOUTH);
 
@@ -65,6 +91,8 @@ public class SevenSlotsView extends JFrame {
 
     private void spin() throws SQLException {
         double gameCost = 10.0;
+        updateUser();
+
         userBalance = UserLoginJDBC.userBalance(connection, userId);
 
         if (userBalance < gameCost) {
@@ -81,6 +109,8 @@ public class SevenSlotsView extends JFrame {
         if (winPossibilitiesInfo != null) {
             System.out.println(winPossibilitiesInfo);
             System.out.println(winValueInfo);
+            winnerInfo.setText("You win! (" + winPossibilitiesInfo.getWinType() + ")");
+            userInfo.setText("User: " + username + " | Balance: $" + userBalance);
 
             double valueReturnAfterSpin = winValueInfo - gameCost;
             System.out.println("Win value after: (winValue - gameCost): " + valueReturnAfterSpin);
@@ -89,11 +119,21 @@ public class SevenSlotsView extends JFrame {
 
             DataGathering.insertSlotsData(connection, userId, winPossibilitiesInfo.getWinType(), winPossibilitiesInfo.getWinningSymbol().toString(), winPossibilitiesInfo.getWinPossibilities(), winValueInfo, true);
             JOptionPane.showMessageDialog(null,"You Win!", null, JOptionPane.INFORMATION_MESSAGE);
+            updateUser();
         } else {
             BalanceChanger.changeBalance(connection, userId, userBalance - gameCost);
             DataGathering.insertSlotsData(connection, userId, null, null, null, 0.0, false);
+            winnerInfo.setText("You lost!");
+            System.out.println("You lost!");
+            updateUser();
         }
         Thread.yield();
+    }
+
+    private void updateUser() throws SQLException {
+        userBalance = UserLoginJDBC.userBalance(connection,userId);
+        username = UserLoginJDBC.getUserName(connection,userId);
+        userInfo.setText("User: " + username + " | Balance: $" + userBalance);
     }
 
     private void updateBoard() {

@@ -67,6 +67,7 @@ public class DataGathering {
         return sb.toString();
     }
 
+    // Metoda do wstawienia 100k rekordów
     public Long generateAndInsertMassData(int totalRecords, int userId) throws SQLException {
         List<Object[]> slotsData = new ArrayList<>();
         Connection connection = ConnectionInit.getConnection();
@@ -123,6 +124,7 @@ public class DataGathering {
         }
 
         // Pomiar czasu zakończenia i obliczenie różnicy
+        // Około 3 sek = 100_000 rekordów
         long endTime = System.currentTimeMillis();
         return endTime - startTime; // Zwracamy Long (autoboxing z long na Long)
     }

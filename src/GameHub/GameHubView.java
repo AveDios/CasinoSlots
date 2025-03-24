@@ -75,7 +75,7 @@ public class GameHubView extends JFrame {
         switch (gameType) {
             case "roulette":
                 dispose();
-                new RouletteView();
+//                new RouletteView();
                 break;
             case "slots":
                 dispose();

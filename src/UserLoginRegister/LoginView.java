@@ -3,6 +3,7 @@ package UserLoginRegister;
 import GameHub.GameHubView;
 import JDBC.ConnectionInit;
 import JDBC.User.UserLoginJDBC;
+import MenuMain.MenuMainView;
 import Slots.TwoDimensionalSlots.TwoDimensionalSlotsView;
 
 import javax.swing.*;
@@ -18,6 +19,7 @@ public class LoginView extends JFrame {
     private final JPasswordField passwordText;
     public static int userId;
     public static String username;
+    public static double userBalance;
 
 
     public  LoginView() {
@@ -120,8 +122,9 @@ public class LoginView extends JFrame {
         if (isCorrectLogin(login, passwordStr)) {
             userId = UserLoginJDBC.userID(connection,login,passwordStr);
             username = UserLoginJDBC.getUserName(connection, userId);
+            userBalance = UserLoginJDBC.userBalance(connection, userId);
             dispose();  // Zamknij bieżące okno logowania
-            new GameHubView();  // Otwórz główne okno aplikacji
+            new MenuMainView();  // Otwórz główne okno aplikacji
         } else {
             JOptionPane.showMessageDialog(this, "Wrong login or password", "Error", JOptionPane.ERROR_MESSAGE);
         }

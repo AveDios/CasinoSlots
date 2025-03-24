@@ -1,42 +1,47 @@
 package Roulette;
 
-// Class that handles game logic, including checking bet results and calculating payouts
+import java.util.ArrayList;
+import java.util.List;
+
 public class RouletteGame {
+    private final RouletteTable table;
+
+    public RouletteGame() {
+        this.table = new RouletteTable();
+    }
+
+    public String[] spin() {
+        return table.getRandomNumber();
+    }
+
     public static boolean checkWin(Bet bet, String[] result) {
-        String number = result[0]; // Extract the drawn number
-        String color = result[1];  // Extract the drawn color
+        String number = result[0];
+        String color = result[1];
 
         switch (bet.getType()) {
             case NUMBER:
-                return bet.getValue().equals(number); // Win if number matches
-
+                return bet.getValue().equals(number);
             case COLOR:
-                return bet.getValue().equals(color); // Win if color matches
-
+                return bet.getValue().equals(color);
             case EVEN_ODD:
-                if (number.equals("0")) return false; // Zero is neither even nor odd
+                if (number.equals("0")) return false;
                 boolean isEven = Integer.parseInt(number) % 2 == 0;
                 return (bet.getValue().equals("EVEN") && isEven) || (bet.getValue().equals("ODD") && !isEven);
-
             case HIGH_LOW:
-                if (number.equals("0")) return false; // Zero is not part of high/low bets
+                if (number.equals("0")) return false;
                 int num = Integer.parseInt(number);
                 return (bet.getValue().equals("LOW") && num <= 18) || (bet.getValue().equals("HIGH") && num >= 19);
-
             case COLUMN:
                 int colIndex = (Integer.parseInt(number) - 1) % 3;
-                return bet.getValue().equals(String.valueOf(colIndex + 1)); // Column 1, 2, or 3
-
+                return bet.getValue().equals(String.valueOf(colIndex + 1));
             case DOZEN:
                 int dozen = (Integer.parseInt(number) - 1) / 12 + 1;
-                return bet.getValue().equals(String.valueOf(dozen)); // A Dozen 1, 2, or 3
-
+                return bet.getValue().equals(String.valueOf(dozen));
             default:
                 return false;
         }
     }
 
-    // Calculates payout based on the bet type
     public static int calculatePayout(Bet bet) {
         return switch (bet.getType()) {
             case NUMBER -> bet.getAmount() * 35;

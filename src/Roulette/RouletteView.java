@@ -1,15 +1,23 @@
 package Roulette;
 
+import lombok.Getter;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
+@Getter
 public class RouletteView extends JPanel {
     private static final Map<Integer, String> NUMBER_COLORS = new HashMap<>();
-    private static double betValue = 0; // Zmienna do przechowywania wartości zakładu
+    private BetType selectedBetType;
+    private String selectedValue;
+    private JTextField betValueField;
+    private JLabel balanceLabel;
+    private final Consumer<Bet> onSpin; // Callback do przekazania zakładu
 
     static {
         int[] redNumbers = {1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36};
@@ -22,8 +30,10 @@ public class RouletteView extends JPanel {
         NUMBER_COLORS.put(0, "GREEN");
     }
 
-    public RouletteView() {
-        JFrame frame = new JFrame("Roulette");
+    public RouletteView(String username, double initialBalance, Consumer<Bet> onSpin) {
+        this.onSpin = onSpin;
+
+        JFrame frame = new JFrame("Roulette - " + username);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setResizable(false);
@@ -33,100 +43,80 @@ public class RouletteView extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(2, 2, 2, 2);
 
-        // Zero na lewo, zajmujące wysokość 3 rzędów
+        // Zero
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridheight = 3;
         gbc.fill = GridBagConstraints.BOTH;
-        JLabel zeroLabel = createLabel("0", "GREEN");
-        tablePanel.add(zeroLabel, gbc);
+        tablePanel.add(createLabel("0", "GREEN", BetType.NUMBER, "0"), gbc);
         gbc.gridheight = 1;
 
-        // Numery 1-36 w 3 rzędach po 12 kolumn
+        // Numery 1-36
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 12; col++) {
                 int number = col * 3 + (3 - row);
                 gbc.gridx = col + 1;
                 gbc.gridy = row;
-                JLabel label = createLabel(String.valueOf(number), NUMBER_COLORS.get(number));
-                tablePanel.add(label, gbc);
+                tablePanel.add(createLabel(String.valueOf(number), NUMBER_COLORS.get(number), BetType.NUMBER, String.valueOf(number)), gbc);
             }
         }
 
         // Kolumna do obstawiania wierszy
         for (int i = 0; i < 3; i++) {
-            gbc.gridx = 13; // Ustaw kolumnę na 13
-            gbc.gridy = i; // Ustaw wiersz
-            JLabel rowBetLabel = createLabel((i + 1) + "st row", "GRAY"); // Zmiana etykiety
-            if (i == 1) {
-                rowBetLabel.setText("2nd row"); // Dla drugiego wiersza
-            } else if (i == 2) {
-                rowBetLabel.setText("3rd row"); // Dla trzeciego wiersza
-            }
-            tablePanel.add(rowBetLabel, gbc);
+            gbc.gridx = 13;
+            gbc.gridy = i;
+            String columnText = (i == 0) ? "1st row" : (i == 1) ? "2nd row" : "3rd row";
+            tablePanel.add(createLabel(columnText, "GRAY", BetType.COLUMN, String.valueOf(i + 1)), gbc);
         }
 
-        // Panel dolny z opcjami zakładów
+        // Panel dolny
         JPanel bottomPanel = new JPanel(new GridBagLayout());
-        bottomPanel.setBorder(BorderFactory.createEmptyBorder(0, 52, 0, 52)); // Przesunięcie o szerokość pola "0"
-
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(0, 52, 0, 52));
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1.0;
 
-        // Zakłady tuzinowe (3 pola, każde zajmuje 4 kolumny, żeby zmieściło się w 12 kolumnach)
+        // Tuziny
         gbc.gridwidth = 4;
         gbc.gridy = 0;
         gbc.gridx = 0;
-        bottomPanel.add(createLabel("1st 12", "GRAY"), gbc);
+        bottomPanel.add(createLabel("1st 12", "GRAY", BetType.DOZEN, "1"), gbc);
         gbc.gridx = 4;
-        bottomPanel.add(createLabel("2nd 12", "GRAY"), gbc);
+        bottomPanel.add(createLabel("2nd 12", "GRAY", BetType.DOZEN, "2"), gbc);
         gbc.gridx = 8;
-        bottomPanel.add(createLabel("3rd 12", "GRAY"), gbc);
+        bottomPanel.add(createLabel("3rd 12", "GRAY", BetType.DOZEN, "3"), gbc);
 
-        // Zakłady dolne (6 pól, każde zajmuje 2 kolumny, żeby zmieściło się w 12 kolumnach)
+        // Zakłady dolne
         gbc.gridwidth = 2;
         gbc.gridy = 1;
         gbc.gridx = 0;
-        bottomPanel.add(createLabel("1-18", "GRAY"), gbc);
+        bottomPanel.add(createLabel("1-18", "GRAY", BetType.HIGH_LOW, "LOW"), gbc);
         gbc.gridx = 2;
-        bottomPanel.add(createLabel("EVEN", "GRAY"), gbc);
+        bottomPanel.add(createLabel("EVEN", "GRAY", BetType.EVEN_ODD, "EVEN"), gbc);
         gbc.gridx = 4;
-        bottomPanel.add(createLabel("RED", "RED"), gbc);
+        bottomPanel.add(createLabel("RED", "RED", BetType.COLOR, "RED"), gbc);
         gbc.gridx = 6;
-        bottomPanel.add(createLabel("BLACK", "BLACK"), gbc);
+        bottomPanel.add(createLabel("BLACK", "BLACK", BetType.COLOR, "BLACK"), gbc);
         gbc.gridx = 8;
-        bottomPanel.add(createLabel("ODD", "GRAY"), gbc);
+        bottomPanel.add(createLabel("ODD", "GRAY", BetType.EVEN_ODD, "ODD"), gbc);
         gbc.gridx = 10;
-        bottomPanel.add(createLabel("19-36", "GRAY"), gbc);
+        bottomPanel.add(createLabel("19-36", "GRAY", BetType.HIGH_LOW, "HIGH"), gbc);
 
-        // Dodanie etykiety "Spin" i pola do wpisania wartości zakładu
+        // Spin, kwota i balans
         gbc.gridwidth = 1;
         gbc.gridy = 2;
         gbc.gridx = 0;
-        bottomPanel.add(createLabel("Spin", "GRAY"), gbc);
+        bottomPanel.add(new JLabel("Bet Amount:"), gbc);
 
-        JTextField betValueField = new JTextField(10);
+        betValueField = new JTextField(10);
         gbc.gridx = 1;
         bottomPanel.add(betValueField, gbc);
 
-        // Dodanie MouseListener na label "Spin"
-        JLabel spinLabel = createLabel("Spin", "GRAY");
-        spinLabel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                try {
-                    // Odczytujemy wartość z pola tekstowego i zapisujemy do zmiennej
-                    betValue = Double.parseDouble(betValueField.getText());
-                    System.out.println("Bet value set to: " + betValue);
-                } catch (NumberFormatException ex) {
-                    // Obsługa błędu, jeśli użytkownik wprowadził coś niepoprawnego
-                    JOptionPane.showMessageDialog(frame, "Please enter a valid number for the bet value.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-
         gbc.gridx = 2;
-        bottomPanel.add(spinLabel, gbc);
+        bottomPanel.add(createSpinLabel(frame), gbc);
+
+        balanceLabel = new JLabel("Balance: " + initialBalance);
+        gbc.gridx = 3;
+        bottomPanel.add(balanceLabel, gbc);
 
         frame.add(tablePanel, BorderLayout.CENTER);
         frame.add(bottomPanel, BorderLayout.SOUTH);
@@ -135,7 +125,7 @@ public class RouletteView extends JPanel {
         frame.setVisible(true);
     }
 
-    private static JLabel createLabel(String text, String color) {
+    private JLabel createLabel(String text, String color, BetType type, String value) {
         JLabel label = new JLabel(text, SwingConstants.CENTER);
         label.setOpaque(true);
         label.setPreferredSize(new Dimension(50, 50));
@@ -151,9 +141,41 @@ public class RouletteView extends JPanel {
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                System.out.println("Bet on: " + label.getText());
+                selectedBetType = type;
+                selectedValue = value;
+                System.out.println("Selected: " + type + " - " + value);
             }
         });
         return label;
+    }
+
+    private JLabel createSpinLabel(JFrame frame) {
+        JLabel spinLabel = new JLabel("Spin", SwingConstants.CENTER);
+        spinLabel.setOpaque(true);
+        spinLabel.setPreferredSize(new Dimension(50, 50));
+        spinLabel.setBackground(Color.GRAY);
+        spinLabel.setForeground(Color.WHITE);
+
+        spinLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                try {
+                    double betValue = Double.parseDouble(betValueField.getText());
+                    if (selectedBetType == null || selectedValue == null || betValue <= 0) {
+                        JOptionPane.showMessageDialog(frame, "Select a bet type and enter a valid amount!", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    Bet bet = new Bet(selectedBetType, selectedValue, (int) betValue);
+                    onSpin.accept(bet); // Przekazujemy zakład do kontrolera
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(frame, "Enter a valid number for the bet amount!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        return spinLabel;
+    }
+
+    public void updateBalance(double newBalance) {
+        balanceLabel.setText("Balance: " + newBalance);
     }
 }
