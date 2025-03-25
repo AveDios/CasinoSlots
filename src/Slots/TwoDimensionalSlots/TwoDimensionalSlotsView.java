@@ -5,6 +5,7 @@ import GameHub.GameHubView;
 import JDBC.Slots.BalanceChanger;
 import JDBC.Slots.TwoDimensionalSlots.DataGathering;
 import JDBC.User.UserLoginJDBC;
+import MenuMain.MenuMainView;
 import Slots.WinInfo.WinInfo;
 
 import javax.swing.*;
@@ -49,7 +50,7 @@ public class TwoDimensionalSlotsView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
-                new GameHubView();
+                new MenuMainView();
             }
         });
         winnerInfo = new JLabel("Spin to win!", SwingConstants.CENTER);

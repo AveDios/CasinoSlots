@@ -1,23 +1,28 @@
 package Roulette;
 
-import lombok.Getter;
-
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.function.Consumer;
 
-@Getter
 public class RouletteView extends JPanel {
     private static final Map<Integer, String> NUMBER_COLORS = new HashMap<>();
     private BetType selectedBetType;
     private String selectedValue;
     private JTextField betValueField;
     private JLabel balanceLabel;
-    private final Consumer<Bet> onSpin; // Callback do przekazania zakładu
+    private JLabel resultLabel;
+    private JLabel selectedLabel;
+    private final Consumer<Bet> onSpin;
+    private final RouletteGame game;
+    private final Border cyanBorder = BorderFactory.createLineBorder(Color.CYAN, 2); // Cyjanowa obramówka UwU
+    private final Border emptyBorder = BorderFactory.createEmptyBorder();
 
     static {
         int[] redNumbers = {1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36};
@@ -32,6 +37,7 @@ public class RouletteView extends JPanel {
 
     public RouletteView(String username, double initialBalance, Consumer<Bet> onSpin) {
         this.onSpin = onSpin;
+        this.game = new RouletteGame();
 
         JFrame frame = new JFrame("Roulette - " + username);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -101,7 +107,7 @@ public class RouletteView extends JPanel {
         gbc.gridx = 10;
         bottomPanel.add(createLabel("19-36", "GRAY", BetType.HIGH_LOW, "HIGH"), gbc);
 
-        // Spin, kwota i balans
+        // Spin, kwota, balans i wynik
         gbc.gridwidth = 1;
         gbc.gridy = 2;
         gbc.gridx = 0;
@@ -117,6 +123,14 @@ public class RouletteView extends JPanel {
         balanceLabel = new JLabel("Balance: " + initialBalance);
         gbc.gridx = 3;
         bottomPanel.add(balanceLabel, gbc);
+
+        resultLabel = new JLabel("-", SwingConstants.CENTER);
+        resultLabel.setOpaque(true);
+        resultLabel.setBackground(Color.GRAY);
+        resultLabel.setForeground(Color.WHITE);
+        resultLabel.setPreferredSize(new Dimension(50, 50));
+        gbc.gridx = 4;
+        bottomPanel.add(resultLabel, gbc);
 
         frame.add(tablePanel, BorderLayout.CENTER);
         frame.add(bottomPanel, BorderLayout.SOUTH);
@@ -144,6 +158,14 @@ public class RouletteView extends JPanel {
                 selectedBetType = type;
                 selectedValue = value;
                 System.out.println("Selected: " + type + " - " + value);
+
+                // Usuwamy obramówkę z poprzedniego labela, jeśli istnieje
+                if (selectedLabel != null) {
+                    selectedLabel.setBorder(emptyBorder);
+                }
+                // Ustawiamy nową obramówkę na aktualnym labelu
+                selectedLabel = label;
+                selectedLabel.setBorder(cyanBorder);
             }
         });
         return label;
@@ -160,19 +182,77 @@ public class RouletteView extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 try {
-                    double betValue = Double.parseDouble(betValueField.getText());
+                    int betValue = Integer.parseInt(betValueField.getText());
                     if (selectedBetType == null || selectedValue == null || betValue <= 0) {
                         JOptionPane.showMessageDialog(frame, "Select a bet type and enter a valid amount!", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    Bet bet = new Bet(selectedBetType, selectedValue, (int) betValue);
-                    onSpin.accept(bet); // Przekazujemy zakład do kontrolera
+
+                    Bet bet = new Bet(selectedBetType, selectedValue, betValue);
+                    RouletteGame.SpinResult spinResult = game.spin(bet);
+
+                    if (spinResult.isSuccess()) {
+                        simulateSpinAnimation(frame, bet, spinResult);
+                    } else {
+                        JOptionPane.showMessageDialog(frame, spinResult.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(frame, "Enter a valid number for the bet amount!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
         return spinLabel;
+    }
+
+    private void simulateSpinAnimation(JFrame frame, Bet bet, RouletteGame.SpinResult spinResult) {
+        Random random = new Random();
+        Timer timer = new Timer(50, null);
+        final int[] iteration = {0};
+        final int totalIterations = 30;
+        final int[] delay = {50};
+
+        timer.addActionListener(e -> {
+            iteration[0]++;
+            if (iteration[0] <= totalIterations) {
+                int randomNum = random.nextInt(37);
+                String color = NUMBER_COLORS.getOrDefault(randomNum, "GREEN");
+                resultLabel.setText(String.valueOf(randomNum));
+                setResultLabelBackground(color);
+                delay[0] += 10;
+                timer.setDelay(delay[0]);
+            } else {
+                resultLabel.setText(spinResult.getResult()[0]);
+                setResultLabelBackground(spinResult.getResult()[1]);
+                timer.stop();
+
+                try {
+                    RouletteDataGathering.saveSpin(JDBC.ConnectionInit.getConnection(),
+                            UserLoginRegister.LoginView.userId,
+                            bet, spinResult.getResult(),
+                            spinResult.getPayout(),
+                            spinResult.getPayout() > 0);
+                    RouletteDataGathering.updateBalance(JDBC.ConnectionInit.getConnection(),
+                            UserLoginRegister.LoginView.userId,
+                            spinResult.getNewBalance());
+                } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(frame, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+
+                updateBalance(spinResult.getNewBalance());
+                JOptionPane.showMessageDialog(frame, spinResult.getMessage(), "Spin Result", JOptionPane.INFORMATION_MESSAGE);
+                onSpin.accept(bet);
+            }
+        });
+        timer.start();
+    }
+
+    private void setResultLabelBackground(String color) {
+        switch (color) {
+            case "RED" -> resultLabel.setBackground(Color.RED);
+            case "BLACK" -> resultLabel.setBackground(Color.BLACK);
+            case "GREEN" -> resultLabel.setBackground(Color.GREEN);
+            default -> resultLabel.setBackground(Color.GRAY);
+        }
     }
 
     public void updateBalance(double newBalance) {

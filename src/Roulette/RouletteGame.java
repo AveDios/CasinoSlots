@@ -1,19 +1,32 @@
 package Roulette;
 
-import java.util.ArrayList;
-import java.util.List;
+import UserLoginRegister.LoginView;
 
 public class RouletteGame {
     private final RouletteTable table;
+    private double currentBalance;
 
     public RouletteGame() {
         this.table = new RouletteTable();
+        this.currentBalance = LoginView.userBalance; // Początkowy balans z LoginView
     }
 
-    public String[] spin() {
-        return table.getRandomNumber();
+    public SpinResult spin(Bet bet) {
+        if (bet.getAmount() > currentBalance) {
+            return new SpinResult(false, "Not enough balance!", null, 0, currentBalance);
+        }
+
+        String[] result = table.getRandomNumber();
+        boolean win = checkWin(bet, result);
+        int payout = win ? calculatePayout(bet) : 0;
+        currentBalance = currentBalance - bet.getAmount() + payout;
+
+        String message = "Result: " + result[0] + " (" + result[1] + ")\n" +
+                (win ? "You won " + payout + "!" : "You lost " + bet.getAmount() + ".");
+        return new SpinResult(true, message, result, payout, currentBalance);
     }
 
+    // Metody checkWin i calculatePayout bez zmian
     public static boolean checkWin(Bet bet, String[] result) {
         String number = result[0];
         String color = result[1];
@@ -49,5 +62,27 @@ public class RouletteGame {
             case COLUMN, DOZEN -> bet.getAmount() * 3;
             default -> 0;
         };
+    }
+
+    public static class SpinResult {
+        private final boolean success;
+        private final String message;
+        private final String[] result;
+        private final int payout;
+        private final double newBalance;
+
+        public SpinResult(boolean success, String message, String[] result, int payout, double newBalance) {
+            this.success = success;
+            this.message = message;
+            this.result = result;
+            this.payout = payout;
+            this.newBalance = newBalance;
+        }
+
+        public boolean isSuccess() { return success; }
+        public String getMessage() { return message; }
+        public String[] getResult() { return result; }
+        public int getPayout() { return payout; }
+        public double getNewBalance() { return newBalance; }
     }
 }

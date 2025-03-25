@@ -11,6 +11,9 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 
+import static UserLoginRegister.LoginView.userBalance;
+import static UserLoginRegister.LoginView.username;
+
 public class GameHubView extends JFrame {
 
     public GameHubView() {
@@ -20,16 +23,16 @@ public class GameHubView extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // 🔹 Górny pasek z wiadomością
+
         JLabel messageLabel = new JLabel("Welcome to the Casino!", SwingConstants.CENTER);
         messageLabel.setFont(new Font("Arial", Font.BOLD, 18));
         add(messageLabel, BorderLayout.NORTH);
 
-        // 🔹 Panel z 3 sekcjami
-        JPanel gamePanel = new JPanel(new GridLayout(1, 3, 5, 0)); // 1 rząd, 3 kolumny
+
+        JPanel gamePanel = new JPanel(new GridLayout(1, 3, 5, 0)); 
         add(gamePanel, BorderLayout.CENTER);
 
-        // 🔹 Dodanie 3 sekcji
+
         gamePanel.add(createGameSection("Roulette", "src/Assets/HubBackground/roulette_background.png", "roulette"));
         gamePanel.add(createGameSection("Slots", "src/Assets/HubBackground/slots_background.png", "slots"));
         gamePanel.add(createGameSection("BlackJack", "src/Assets/HubBackground/blackjack_background.png", "blackjack"));
@@ -37,7 +40,7 @@ public class GameHubView extends JFrame {
         setVisible(true);
     }
 
-    // 📌 Metoda do tworzenia sekcji gry
+
     private JPanel createGameSection(String gameName, String backgroundImage, String gameType) {
         JPanel panel = new JPanel() {
             @Override
@@ -53,7 +56,7 @@ public class GameHubView extends JFrame {
             }
         };
         panel.setLayout(new BorderLayout());
-        panel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2)); // Obrys sekcji
+        panel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
         JLabel nameLabel = new JLabel(gameName, SwingConstants.CENTER);
         nameLabel.setForeground(Color.WHITE);
@@ -75,7 +78,7 @@ public class GameHubView extends JFrame {
         switch (gameType) {
             case "roulette":
                 dispose();
-//                new RouletteView();
+                new RouletteView(username, userBalance, bet -> System.out.println("Bet placed: " + bet));
                 break;
             case "slots":
                 dispose();
@@ -83,7 +86,6 @@ public class GameHubView extends JFrame {
                 break;
             case "blackjack":
                 JOptionPane.showMessageDialog(this, "Game is not available yet", "Error", JOptionPane.INFORMATION_MESSAGE);
-//                startBlackjack();
                 break;
         }
     }

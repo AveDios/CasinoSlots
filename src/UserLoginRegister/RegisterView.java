@@ -2,14 +2,18 @@ package UserLoginRegister;
 
 import GameHub.GameHubView;
 import JDBC.ConnectionInit;
+import JDBC.User.UserLoginJDBC;
 import JDBC.User.UserRegisterJDBC;
 
 import javax.swing.*;
 import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 import static JDBC.ConnectionInit.connection;
+import static UserLoginRegister.LoginView.userBalance;
+import static UserLoginRegister.LoginView.userId;
 
 public class RegisterView extends JFrame {
     private final JTextField loginText;
@@ -87,10 +91,34 @@ public class RegisterView extends JFrame {
 
         getRootPane().setDefaultButton(registerButton); // Obsługa Entera
 
-        registerButton.addActionListener(e -> performRegister());
-        passwordText.addActionListener(e -> performRegister());
-        loginText.addActionListener(e -> performRegister());
-        reEnterPassword.addActionListener(e -> performRegister());
+        registerButton.addActionListener(e -> {
+            try {
+                performRegister();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        passwordText.addActionListener(e -> {
+            try {
+                performRegister();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        loginText.addActionListener(e -> {
+            try {
+                performRegister();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        reEnterPassword.addActionListener(e -> {
+            try {
+                performRegister();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         loginButton.addActionListener(e -> {
             dispose();
@@ -100,7 +128,7 @@ public class RegisterView extends JFrame {
         setVisible(true);
     }
 
-    private void performRegister() {
+    private void performRegister() throws SQLException {
         // Logika rejestracji
         String login = loginText.getText().trim();
         char[] password = passwordText.getPassword();
@@ -114,6 +142,8 @@ public class RegisterView extends JFrame {
                 User user = new User(login, passwordStr);
                 UserRegisterJDBC.insertUserData(connection, user.getUsername(), user.getHashedPassword(), 100);
                 JOptionPane.showMessageDialog(this, "Welcome to casino");
+                userId = UserLoginJDBC.userID(connection, login,passwordStr);
+                userBalance = UserLoginJDBC.userBalance(connection,userId);
                 dispose();
                 new GameHubView();
             }
