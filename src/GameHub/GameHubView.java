@@ -1,5 +1,6 @@
 package GameHub;
 
+import BlackJack.BlackJackGUI;
 import Roulette.RouletteView;
 import Slots.TwoDimensionalSlots.TwoDimensionalSlotsView;
 
@@ -85,7 +86,8 @@ public class GameHubView extends JFrame {
                 new SlotsHubView();
                 break;
             case "blackjack":
-                JOptionPane.showMessageDialog(this, "Game is not available yet", "Error", JOptionPane.INFORMATION_MESSAGE);
+                dispose();
+                new BlackJackGUI();
                 break;
         }
     }
