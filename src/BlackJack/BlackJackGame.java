@@ -3,7 +3,7 @@ package BlackJack;
 import lombok.Getter;
 
 public class BlackJackGame {
-    private final Deck deck;
+    private Deck deck;
     @Getter
     private final Hand playerHand;
     @Getter
@@ -21,6 +21,12 @@ public class BlackJackGame {
     }
 
     public void startNewGame() {
+
+        if (deck.size() < 15) {
+            deck = new Deck();
+            System.out.println("New Deck");
+        }
+
         playerHand.getCards().clear();
         dealerHand.getCards().clear();
         deck.shuffle();
