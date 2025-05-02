@@ -7,56 +7,63 @@ import JDBC.User.UserRegisterJDBC;
 
 import javax.swing.*;
 import java.awt.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import static JDBC.ConnectionInit.connection;
 import static UserLoginRegister.LoginView.userBalance;
 import static UserLoginRegister.LoginView.userId;
 
+/**
+ * Represents the graphical user interface for user registration.
+ * Provides fields for entering a username, password, and re-entering the password, a register button,
+ * and a button to navigate to the login view. Handles user registration and redirects to the game hub upon success.
+ */
 public class RegisterView extends JFrame {
-    private final JTextField loginText;
-    private final JPasswordField passwordText;
-    private final JTextField reEnterPassword;  // Dodane pole tekstowe
 
-    public  RegisterView() {
+    /** Text field for entering the username. */
+    private final JTextField loginText;
+
+    /** Password field for entering the password. */
+    private final JPasswordField passwordText;
+
+    /** Password field for re-entering the password to confirm it. */
+    private final JPasswordField reEnterPassword;
+
+    /**
+     * Constructs a new RegisterView, initializing the GUI components and setting up event listeners.
+     */
+    public RegisterView() {
         super("Register");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(400, 350); // Zwiększamy rozmiar okna, aby pomieścić nowe pole
+        setSize(400, 350);
         setLocationRelativeTo(null);
         setResizable(false);
 
-        // Ustawiamy layout na GridBagLayout
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(10, 10, 10, 10); // Odstępy między komponentami
+        gbc.insets = new Insets(10, 10, 10, 10);
 
-        // Etykieta powitalna
         String helloLabelText = "Welcome to my application.\nEnter login and password to continue";
         String helloLabelTextToHTML = "<html><div style='text-align: center;'>" + helloLabelText.replace("\n", "<br>") + "</div></html>";
         JLabel helloLabel = new JLabel(helloLabelTextToHTML);
         helloLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        // Dodajemy etykietę powitalną na górze
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.gridwidth = 2; // Etykieta zajmuje dwie kolumny
+        gbc.gridwidth = 2;
         add(helloLabel, gbc);
 
-        // Etykieta i pole tekstowe dla nazwy użytkownika
         JLabel loginLabel = new JLabel("Login:");
         gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.gridwidth = 1; // Etykieta zajmuje jedną kolumnę
+        gbc.gridwidth = 1;
         add(loginLabel, gbc);
 
         loginText = new JTextField(15);
         gbc.gridx = 1;
         add(loginText, gbc);
 
-        // Etykieta i pole tekstowe dla hasła
         JLabel passwordLabel = new JLabel("Password:");
         gbc.gridx = 0;
         gbc.gridy = 2;
@@ -66,21 +73,19 @@ public class RegisterView extends JFrame {
         gbc.gridx = 1;
         add(passwordText, gbc);
 
-        // Etykieta i pole tekstowe dla e-maila
         JLabel emailLabel = new JLabel("Re enter password");
         gbc.gridx = 0;
         gbc.gridy = 3;
         add(emailLabel, gbc);
 
-        reEnterPassword = new JPasswordField(15);  // Nowe pole tekstowe dla emaila
+        reEnterPassword = new JPasswordField(15);
         gbc.gridx = 1;
         add(reEnterPassword, gbc);
 
-        // Przycisk rejestracji
         JButton registerButton = new JButton("Register");
         gbc.gridx = 0;
         gbc.gridy = 4;
-        gbc.gridwidth = 2; // Przycisk zajmuje dwie kolumny
+        gbc.gridwidth = 2;
         add(registerButton, gbc);
 
         JButton loginButton = new JButton("Already have an account? Login into it.");
@@ -89,7 +94,7 @@ public class RegisterView extends JFrame {
         gbc.gridwidth = 2;
         add(loginButton, gbc);
 
-        getRootPane().setDefaultButton(registerButton); // Obsługa Entera
+        getRootPane().setDefaultButton(registerButton);
 
         registerButton.addActionListener(e -> {
             try {
@@ -128,26 +133,32 @@ public class RegisterView extends JFrame {
         setVisible(true);
     }
 
+    /**
+     * Performs the registration process by validating the entered username and passwords.
+     * Checks if the passwords match and if the username is unique, then registers the user in the database.
+     * On success, sets the user ID and balance, closes the registration window, and opens the game hub.
+     * Displays an error message if the passwords do not match or the username already exists.
+     *
+     * @throws SQLException if a database error occurs during registration or data retrieval
+     */
     private void performRegister() throws SQLException {
-        // Logika rejestracji
         String login = loginText.getText().trim();
         char[] password = passwordText.getPassword();
-        String passwordStr = new String(password); // Konwertowanie char[] na String
+        String passwordStr = new String(password);
         if (!passwordStr.equals(reEnterPassword.getText())) {
             JOptionPane.showMessageDialog(this, "Passwords do not match");
         } else {
             if (UserRegisterJDBC.isLoginExist(connection, login)) {
                 JOptionPane.showMessageDialog(this, "Login already exist");
-            }else {
+            } else {
                 User user = new User(login, passwordStr);
                 UserRegisterJDBC.insertUserData(connection, user.getUsername(), user.getHashedPassword(), 100);
                 JOptionPane.showMessageDialog(this, "Welcome to casino");
-                userId = UserLoginJDBC.userID(connection, login,passwordStr);
-                userBalance = UserLoginJDBC.userBalance(connection,userId);
+                userId = UserLoginJDBC.userID(connection, login, passwordStr);
+                userBalance = UserLoginJDBC.userBalance(connection, userId);
                 dispose();
                 new GameHubView();
             }
-
         }
     }
 }

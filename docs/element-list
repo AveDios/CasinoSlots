@@ -1,5 +1,15 @@
 unnamed package
-Slots.ISlots
+Assets
+BlackJack
+GameHub
 JDBC
+JDBC.Slots
+JDBC.Slots.SevenSlots
+JDBC.Slots.TwoDimensionalSlots
+JDBC.User
+MenuMain
+Roulette
 Slots.SevenSlotsGame
+Slots.TwoDimensionalSlots
+Slots.WinInfo
 UserLoginRegister

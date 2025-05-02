@@ -9,30 +9,46 @@ import lombok.Getter;
 import javax.swing.*;
 import java.util.Random;
 
+/**
+ * Represents a one-dimensional slot machine game with a board of five slots.
+ * The game uses a set of symbols (e.g., cherry, lemon) and determines wins based on consecutive matching symbols.
+ */
 public class SevenSlots {
 
+    /** Random number generator used for selecting symbols. */
     static Random rand = new Random();
 
+    /** Array of available symbols that can appear on the board. */
     ImageIcon[] symbols;
 
+    /** The current state of the slot machine board, containing five symbols. */
     @Getter
     private ImageIcon[] board = new ImageIcon[5];
 
-    public SevenSlots() { loadSymbols(); }
+    /**
+     * Constructs a new SevenSlots game and initializes the symbols.
+     */
+    public SevenSlots() {
+        loadSymbols();
+    }
 
+    /**
+     * Loads the symbols (cherry and lemon) into the symbols array.
+     * Each symbol is represented by an ImageIcon with a corresponding description.
+     */
     private void loadSymbols() {
         symbols = new ImageIcon[2];
         String cherry = "src/Assets/symbols/cherry.png";
         String lemon = "src/Assets/symbols/lemon.png";
-//        String orange = "src/Assets/symbols/orange.png";
         symbols[0] = new ImageIcon(cherry);
         symbols[0].setDescription("cherry");
         symbols[1] = new ImageIcon(lemon);
         symbols[1].setDescription("lemon");
-//        symbols[2] = new ImageIcon(orange);
-//        symbols[2].setDescription("orange");
     }
 
+    /**
+     * Generates a new board by randomly selecting symbols for each of the five slots.
+     */
     public void makeBoard() {
         for (int i = 0; i < board.length; i++) {
             int index = rand.nextInt(symbols.length);
@@ -40,27 +56,41 @@ public class SevenSlots {
         }
     }
 
+    /**
+     * Checks the board for a winning combination of consecutive matching symbols.
+     * Returns a WinInfo object if a win is found (three, four, or five matching symbols),
+     * or null if no win is found.
+     *
+     * @return a WinInfo object describing the win, or null if there is no win
+     */
     public WinInfo getWinInfo() {
-        if (checkRowWin(board,5)) {
+        if (checkRowWin(board, 5)) {
             return new WinInfo(WinGameName.ONE_DIMENSIONAL_SLOTS, WinType.ROW, board[0], WinPossibilities.FIVE);
         }
-        if (checkRowWin(board,4)) {
+        if (checkRowWin(board, 4)) {
             return new WinInfo(WinGameName.ONE_DIMENSIONAL_SLOTS, WinType.ROW, board[0], WinPossibilities.FOUR);
         }
-        if (checkRowWin(board,3)) {
+        if (checkRowWin(board, 3)) {
             return new WinInfo(WinGameName.ONE_DIMENSIONAL_SLOTS, WinType.ROW, board[0], WinPossibilities.THREE);
         }
         return null;
     }
 
+    /**
+     * Checks if a row contains a sequence of matching symbols that satisfies the win condition.
+     *
+     * @param row          the array of symbols to check
+     * @param winCondition the number of consecutive matching symbols required for a win
+     * @return true if a winning sequence is found, false otherwise
+     */
     private boolean checkRowWin(ImageIcon[] row, int winCondition) {
         if (row.length < winCondition) {
-            return false; // Nie można wygrać, jeśli rząd jest krótszy niż warunek wygranej
+            return false; // Cannot win if the row is shorter than the win condition
         }
 
         for (int i = 0; i <= row.length - winCondition; i++) {
             ImageIcon firstSymbol = row[i];
-            if (firstSymbol == null) continue; // Pomijamy puste miejsca
+            if (firstSymbol == null) continue; // Skip empty slots
 
             boolean win = true;
             for (int j = 1; j < winCondition; j++) {
@@ -69,7 +99,7 @@ public class SevenSlots {
                     break;
                 }
             }
-            if (win) return true; // Jeśli znaleźliśmy sekwencję, zwracamy true
+            if (win) return true; // Return true if a sequence is found
         }
         return false;
     }

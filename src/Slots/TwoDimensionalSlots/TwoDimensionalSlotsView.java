@@ -20,18 +20,58 @@ import java.util.List;
 import static JDBC.ConnectionInit.connection;
 import static UserLoginRegister.LoginView.*;
 
+/**
+ * Represents the graphical user interface for the Two Dimensional Slots game.
+ * Displays a 3x5 slot machine board, a spin button, and user information.
+ * Handles game logic, user balance updates, and database interactions.
+ */
 public class TwoDimensionalSlotsView extends JFrame {
+
+    /**
+     * The game logic instance for the Two Dimensional Slots game.
+     */
     private TwoDimensionalSlotsLogic twoDimensionalSlotsGameLogic;
+
+    /**
+     * 2D array of labels displaying the slot machine symbols.
+     */
     private JLabel[][] labels = new JLabel[3][5];
+
+    /**
+     * Button to initiate a spin of the slot machine.
+     */
     private JButton spinButton;
+
+    /**
+     * Label displaying the win or loss result.
+     */
     private JLabel winnerInfo;
+
+    /**
+     * Label displaying the user's username and balance.
+     */
     private JLabel userInfo;
+
+    /**
+     * The current balance of the user.
+     */
     private static double userBalance;
+
+    /**
+     * The username of the logged-in user.
+     */
     private static String username;
+
+    /**
+     * Button to return to the main menu.
+     */
     private JButton backButton;
 
-
-
+    /**
+     * Constructs a new TwoDimensionalSlotsView, initializing the GUI and game logic.
+     *
+     * @throws SQLException if a database error occurs during initialization
+     */
     public TwoDimensionalSlotsView() throws SQLException {
         twoDimensionalSlotsGameLogic = new TwoDimensionalSlotsLogic();
 
@@ -41,12 +81,9 @@ public class TwoDimensionalSlotsView extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-
-
         JPanel infoPanel = new JPanel(new GridLayout(1, 3));
         backButton = new JButton("Back");
         backButton.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
@@ -62,12 +99,12 @@ public class TwoDimensionalSlotsView extends JFrame {
         infoPanel.add(winnerInfo);
         infoPanel.add(userInfo);
 
-        JPanel boardPanel = new JPanel(new GridLayout(3,5));
+        JPanel boardPanel = new JPanel(new GridLayout(3, 5));
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 5; j++) {
                 labels[i][j] = new JLabel("", SwingConstants.CENTER);
                 labels[i][j].setBorder(BorderFactory.createLineBorder(Color.black));
-                labels[i][j].setBackground(new Color(152,255,152));
+                labels[i][j].setBackground(new Color(152, 255, 152));
                 labels[i][j].setOpaque(true);
                 boardPanel.add(labels[i][j]);
             }
@@ -123,44 +160,46 @@ public class TwoDimensionalSlotsView extends JFrame {
             }
         });
 
-        setSize(500,350);
+        setSize(500, 350);
         setResizable(false);
         setVisible(true);
     }
 
+    /**
+     * Performs a spin of the slot machine, updates the board, and processes the game outcome.
+     * Checks the user's balance, deducts the game cost, and updates the balance based on the win or loss.
+     * Highlights winning fields, displays the result, and logs the game data to the database.
+     *
+     * @throws SQLException if a database error occurs during balance updates or data logging
+     */
     private void spin() throws SQLException {
         double gameCost = 25.0;
         updateUser();
 
         if (userBalance < gameCost) {
-            JOptionPane.showMessageDialog(null,"Insufficient balance! You need at least " + gameCost + " to play.", "Error",JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Insufficient balance! You need at least " + gameCost + " to play.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         twoDimensionalSlotsGameLogic.makeBoard();
         updateBoard();
 
-        // Pobieramy informacje o wygranej – metoda getWinInfo() już ustala priorytet (ROW ma najwyższy priorytet)
         WinInfo winInfo = twoDimensionalSlotsGameLogic.getWinInfo();
         double winValue = TwoDimensionalSlotsWinPriceLogic.getWinValue(winInfo);
 
         if (winInfo != null) {
-            // Podświetlamy tylko pola odpowiadające typowi wygranej, który ma najwyższy priorytet
             highlightWinningFields(winInfo);
             winnerInfo.setText("You win! (" + winInfo.getWinType() + ")");
             userInfo.setText("Balance: $" + userBalance);
             System.out.println("You win!");
             System.out.println(winInfo);
 
-
             double valueReturnAfterGame = winValue - gameCost;
             System.out.println("Win value after: (winValue - gameCost): " + valueReturnAfterGame);
 
-            //Aktualizacja balansu gracza
             BalanceChanger.changeBalance(connection, userId, userBalance + valueReturnAfterGame);
 
-            //Zapis wyników do bazy danych
-            DataGathering.insertSlotsData(connection, userId, winInfo.getWinType(),winInfo.getWinningSymbol().toString(),winInfo.getWinningFields(),winValue,true);
+            DataGathering.insertSlotsData(connection, userId, winInfo.getWinType(), winInfo.getWinningSymbol().toString(), winInfo.getWinningFields(), winValue, true);
 
             JOptionPane.showMessageDialog(null, "You win! Your price is: " + winValue, "High Score", JOptionPane.INFORMATION_MESSAGE);
             updateUser();
@@ -174,17 +213,26 @@ public class TwoDimensionalSlotsView extends JFrame {
         Thread.yield();
     }
 
+    /**
+     * Updates the user's balance and username displayed in the userInfo label.
+     *
+     * @throws SQLException if a database error occurs while retrieving user information
+     */
     private void updateUser() throws SQLException {
-        userBalance = UserLoginJDBC.userBalance(connection,userId);
-        username = UserLoginJDBC.getUserName(connection,userId);
+        userBalance = UserLoginJDBC.userBalance(connection, userId);
+        username = UserLoginJDBC.getUserName(connection, userId);
         userInfo.setText("Balance: $" + userBalance);
     }
 
+    /**
+     * Updates the slot machine board display with the current symbols from the TwoDimensionalSlotsLogic instance.
+     * Scales the icons to fit the label dimensions.
+     */
     private void updateBoard() {
         ImageIcon[][] board = twoDimensionalSlotsGameLogic.getBoard();
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
-                int width =  labels[i][j].getWidth() - 10;
+                int width = labels[i][j].getWidth() - 10;
                 int height = labels[i][j].getHeight() - 10;
 
                 if (width > 0 && height > 0) {
@@ -194,15 +242,20 @@ public class TwoDimensionalSlotsView extends JFrame {
                     labels[i][j].setIcon(board[i][j]);
                 }
 
-                labels[i][j].setBackground(new Color(152,255,152));
+                labels[i][j].setBackground(new Color(152, 255, 152));
             }
         }
     }
 
+    /**
+     * Highlights the winning fields on the board based on the WinInfo provided.
+     * Applies a specific color to the winning fields depending on the win type.
+     *
+     * @param winInfo the WinInfo object containing the winning fields and win type
+     */
     private void highlightWinningFields(WinInfo winInfo) {
         List<int[]> winningFields = winInfo.getWinningFields();
 
-        // Zmiana kolorów tła w zależności od wylosowanej wygranej
         Color highlightColor = switch (winInfo.getWinType()) {
             case ROW -> TwoDimensionalSlotsColors.ROW_COLOR_ORANGE;
             case MAIN_DIAGONAL -> TwoDimensionalSlotsColors.MAIN_DIAGONAL_COLOR_YELLOW;
@@ -213,14 +266,12 @@ public class TwoDimensionalSlotsView extends JFrame {
             case REVERSE_MULTI_DIAGONAL -> TwoDimensionalSlotsColors.REVERSE_MULTI_DIAGONAL_COLOR_MAGENTA;
         };
 
-        // Opcjonalnie: najpierw przywróć domyślne tło dla całej planszy
         for (int i = 0; i < labels.length; i++) {
             for (int j = 0; j < labels[i].length; j++) {
-                labels[i][j].setBackground(new Color(152,255,152));
+                labels[i][j].setBackground(new Color(152, 255, 152));
             }
         }
 
-        // Podświetlenie tylko pól wygranej zgodnie z priorytetem (winInfo zawiera tylko te pola, które odpowiadają najwyższemu priorytetowi)
         for (int[] pos : winningFields) {
             int row = pos[0];
             int col = pos[1];
@@ -229,6 +280,14 @@ public class TwoDimensionalSlotsView extends JFrame {
         }
     }
 
+    /**
+     * Scales an ImageIcon to the specified width and height while maintaining the aspect ratio.
+     *
+     * @param icon   the ImageIcon to scale
+     * @param width  the target width of the scaled icon
+     * @param height the target height of the scaled icon
+     * @return a new scaled ImageIcon, or null if the input icon or its image is null
+     */
     private ImageIcon getScaledIcon(ImageIcon icon, int width, int height) {
         if (icon == null || icon.getImage() == null) return null;
         Image img = icon.getImage();
